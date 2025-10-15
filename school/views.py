@@ -5,12 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from . forms import *
 
-from school_management.school.forms import TeacherSignUpForm
 
 
 # Create your views here.
+def login(request):
+    return render(request, 'login.html')
 
-
+def index(request):
+    return render(request, 'index.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -54,7 +56,6 @@ def admin_signup(request):
     else:
         form = AdminSignUpForm()
     return render(request, 'admin_signup.html', {'form': form})
-
 
 
 
