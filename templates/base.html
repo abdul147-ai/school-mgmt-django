@@ -139,7 +139,7 @@
                      <li class="submenu {% if request.resolver_match.url_name == 'index' or request.resolver_match.url_name == 'teacher_dashboard' or request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
                         <a href="#"><i class="fas fa-user-graduate"></i> <span> Dashboard</span> <span class="menu-arrow"></span></a>
                         <ul>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Admin Dashboard</a></li>
+                           <li><a href="/index" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Admin Dashboard</a></li>
                            <li><a href="#" class="{% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">Teacher Dashboard</a></li>
                            <li><a href="#" class="{% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">Student Dashboard</a></li>
                         </ul>
@@ -147,10 +147,10 @@
                      <li class="submenu {% if 'student' in request.resolver_match.url_name %}active{% endif %}">
                         <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
                         <ul>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'students' %}active{% endif %}">Student List</a></li>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'student_details' %}active{% endif %}">Student View</a></li>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'add_student' %}active{% endif %}">Student Add</a></li>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'edit_student' %}active{% endif %}">Student Edit</a></li>
+                           <li><a href="{% url 'students' %}" class="{% if request.resolver_match.url_name == 'students' %}active{% endif %}">Student List</a></li>
+                           <li><a href="{% url 'student_details' %}" class="{% if request.resolver_match.url_name == 'student_details' %}active{% endif %}">Student View</a></li>
+                           <li><a href="{% url 'add_student' %}" class="{% if request.resolver_match.url_name == 'add_student' %}active{% endif %}">Student Add</a></li>
+                           <li><a href="{% url 'edit_student' 1 %}" class="{% if request.resolver_match.url_name == 'edit_student' %}active{% endif %}">Student Edit</a></li>
                         </ul>
                      </li>
                      <li class="submenu {% if 'teacher' in request.resolver_match.url_name %}active{% endif %}">
