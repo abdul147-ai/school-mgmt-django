@@ -58,4 +58,28 @@ def admin_signup(request):
     return render(request, 'admin_signup.html', {'form': form})
 
 
+def student_view(request):
+    return render(request, 'students.html')
 
+def student_details(request):
+    return render(request, 'student_details.html')
+
+def add_student(request):
+    return render(request, 'add_student.html')
+
+def edit_student(request,id):
+    return render(request, 'edit_student.html' , {'student_id':id})
+
+
+
+def teacher_view(request):
+    return render(request, 'teachers.html')
+
+def teacher_details(request):
+    return render(request, 'teacher_details.html')
+
+def add_teacher(request):
+    return render(request, 'add_teacher.html')
+
+def edit_teacher(request,id):
+    return render(request, 'edit_teacher.html' , {'teacher_id':id})
