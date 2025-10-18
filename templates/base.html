@@ -156,10 +156,10 @@
                      <li class="submenu {% if 'teacher' in request.resolver_match.url_name %}active{% endif %}">
                         <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Teachers</span> <span class="menu-arrow"></span></a>
                         <ul>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'teachers' %}active{% endif %}">Teacher List</a></li>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'teacher_details' %}active{% endif %}">Teacher View</a></li>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'add_teacher' %}active{% endif %}">Teacher Add</a></li>
-                           <li><a href="#" class="{% if request.resolver_match.url_name == 'edit_teacher' %}active{% endif %}">Teacher Edit</a></li>
+                           <li><a href="{% url 'teachers' %}" class="{% if request.resolver_match.url_name == 'teachers' %}active{% endif %}">Teacher List</a></li>
+                           <li><a href="{% url 'teacher_details' %}" class="{% if request.resolver_match.url_name == 'teacher_details' %}active{% endif %}">Teacher View</a></li>
+                           <li><a href="{% url 'add_teacher' %}" class="{% if request.resolver_match.url_name == 'add_teacher' %}active{% endif %}">Teacher Add</a></li>
+                           <li><a href="{% url 'edit_teacher' 1 %}" class="{% if request.resolver_match.url_name == 'edit_teacher' %}active{% endif %}">Teacher Edit</a></li>
                         </ul>
                      </li>
                      <li class="submenu {% if 'department' in request.resolver_match.url_name %}active{% endif %}">
