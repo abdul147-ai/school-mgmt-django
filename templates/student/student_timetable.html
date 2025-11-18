@@ -1,0 +1,135 @@
+{% extends 'student/student_base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}My Timetable{% endblock %}
+{% block page_title %}Class Timetable{% endblock %}
+{% block breadcrumb_active %}Weekly Schedule{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">My Weekly Timetable</h1>
+        <div>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Class Information -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="font-weight-bold">Class: {{ class_obj.name }}</h5>
+                            <p class="mb-1"><strong>Department:</strong> {{ class_obj.department.name }}</p>
+                            <p class="mb-1"><strong>Class Teacher:</strong> {{ class_obj.class_teacher.get_name|default:"Not assigned" }}</p>
+                            <p class="mb-0"><strong>Room:</strong> {{ class_obj.room_number|default:"Not assigned" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="font-weight-bold text-success">Today's Schedule</h5>
+                            {% if today_timetable %}
+                                <div class="list-group">
+                                    {% for class in today_timetable %}
+                                    <div class="list-group-item">
+                                        <strong>{{ class.period }}</strong> - {{ class.subject.name }}
+                                        ({{ class.time_slot }}) - {{ class.room_number|default:"TBA" }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No classes scheduled for {{ today }}.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Timetable -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Weekly Timetable</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Period/Day</th>
+                                    {% for day in days %}
+                                    <th class="text-center">{{ day|title }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for period_num, period_display in periods %}
+                                <tr>
+                                    <td class="font-weight-bold">
+                                        {{ period_display }}
+                                    </td>
+                                    {% for day in days %}
+                                    <td class="text-center">
+                                        {% with entry=timetable_data.day.period_num %}
+                                        {% with actual_entry=timetable_data|get_item:day|get_item:period_num %}
+                                        {% if actual_entry %}
+                                        <div class="timetable-entry">
+                                            <strong>{{ actual_entry.subject.name }}</strong><br>
+                                            <small class="text-muted">
+                                                {{ actual_entry.teacher.get_name }}<br>
+                                                {% if actual_entry.room_number %}
+                                                Room: {{ actual_entry.room_number }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                        {% endwith %}
+                                        {% endwith %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Period Timings -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Period Timings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for period_num, period_display in periods %}
+                        <div class="col-md-4 mb-2">
+                            <strong>{{ period_display }}</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Simple template filter for dictionary access
+function getItem(obj, key) {
+    return obj[key];
+}
+</script>
+{% endblock %}

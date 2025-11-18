@@ -1,0 +1,202 @@
+{% extends 'student/student_base.html' %}
+{% load static %}
+
+{% block title %}My Attendance{% endblock %}
+{% block page_title %}My Attendance{% endblock %}
+{% block breadcrumb_active %}Attendance Records{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">My Attendance</h1>
+        <div class="d-flex">
+            <!-- Month Selector -->
+            <form method="get" class="mr-2">
+                <div class="input-group">
+                    <select name="month" class="form-control" onchange="this.form.submit()">
+                        {% for month_option in available_months %}
+                        <option value="{{ month_option.month }}"
+                                {% if month_option.month == current_month and month_option.year == current_year %}selected{% endif %}>
+                            {{ month_option.display }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="year" value="{{ current_year }}" class="form-control" style="width: 100px;"
+                           placeholder="Year" onchange="this.form.submit()">
+                </div>
+            </form>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Attendance Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Attendance Summary - {{ month_name }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-success font-weight-bold h5">{{ present_count }}</div>
+                                    <div class="text-xs text-uppercase text-success font-weight-bold">Present</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-danger font-weight-bold h5">{{ absent_count }}</div>
+                                    <div class="text-xs text-uppercase text-danger font-weight-bold">Absent</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-info font-weight-bold h5">{{ on_leave_count }}</div>
+                                    <div class="text-xs text-uppercase text-info font-weight-bold">On Leave</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-warning font-weight-bold h5">{{ half_day_count }}</div>
+                                    <div class="text-xs text-uppercase text-warning font-weight-bold">Half Day</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <h4 class="font-weight-bold {% if attendance_percentage >= 75 %}text-success{% elif attendance_percentage >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                            Overall Attendance: {{ attendance_percentage }}%
+                        </h4>
+                        <p class="text-muted">Total Days: {{ total_days }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Calendar -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Attendance Calendar - {{ month_name }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Sunday</th>
+                                    <th>Monday</th>
+                                    <th>Tuesday</th>
+                                    <th>Wednesday</th>
+                                    <th>Thursday</th>
+                                    <th>Friday</th>
+                                    <th>Saturday</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for week in attendance_calendar %}
+                                <tr>
+                                    {% for day_data in week %}
+                                    <td class="text-center {% if day_data.day %}py-3{% endif %}"
+                                        style="height: 80px; vertical-align: middle;">
+                                        {% if day_data.day %}
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span class="font-weight-bold">{{ day_data.day }}</span>
+                                                {% if day_data.status %}
+                                                    {% if day_data.status == 'present' %}
+                                                        <span class="badge badge-success">P</span>
+                                                    {% elif day_data.status == 'absent' %}
+                                                        <span class="badge badge-danger">A</span>
+                                                    {% elif day_data.status == 'on_leave' %}
+                                                        <span class="badge badge-info">L</span>
+                                                    {% elif day_data.status == 'half_day' %}
+                                                        <span class="badge badge-warning">H</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="badge badge-secondary">-</span>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="mt-3">
+                        <h6 class="font-weight-bold">Legend:</h6>
+                        <span class="badge badge-success mr-2">P - Present</span>
+                        <span class="badge badge-danger mr-2">A - Absent</span>
+                        <span class="badge badge-info mr-2">L - On Leave</span>
+                        <span class="badge badge-warning mr-2">H - Half Day</span>
+                        <span class="badge badge-secondary mr-2">- - No Record</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Attendance Records -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Attendance Records</h6>
+                </div>
+                <div class="card-body">
+                    {% if attendance_records %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                    <th>Recorded By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_records %}
+                                <tr>
+                                    <td>{{ record.date }}</td>
+                                    <td>
+                                        {% if record.status == 'present' %}
+                                            <span class="badge badge-success">Present</span>
+                                        {% elif record.status == 'absent' %}
+                                            <span class="badge badge-danger">Absent</span>
+                                        {% elif record.status == 'on_leave' %}
+                                            <span class="badge badge-info">On Leave</span>
+                                        {% elif record.status == 'half_day' %}
+                                            <span class="badge badge-warning">Half Day</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ record.remarks|default:"-" }}</td>
+                                    <td>{{ record.recorded_by.get_name|default:"System" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No attendance records found for {{ month_name }}.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

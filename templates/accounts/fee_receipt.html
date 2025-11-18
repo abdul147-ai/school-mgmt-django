@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Printable Receipt Area -->
+                    <div id="receipt-content" class="receipt-container">
+                        <!-- Header -->
+                        <div class="receipt-header text-center mb-4">
+                            <h1 class="text-primary mb-1">PreSkool</h1>
+                            <p class="text-muted mb-0">School Management System</p>
+                            <p class="text-muted mb-0">123 Education Street, Learning City</p>
+                            <p class="text-muted mb-0">Phone: +1 234 567 890 | Email: info@preskool.edu</p>
+                            <hr class="my-3">
+                            <h3 class="text-uppercase mb-0">Fee Payment Receipt</h3>
+                        </div>
+
+                        <!-- Receipt Details -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="receipt-detail">
+                                    <h5>Student Information</h5>
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>Student Name:</strong></td>
+                                            <td>{{ student.user.get_full_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Student ID:</strong></td>
+                                            <td>{{ student.student_id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Admission No:</strong></td>
+                                            <td>{{ student.admission_number|default:"N/A" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Class:</strong></td>
+                                            <td>{{ class_obj.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Department:</strong></td>
+                                            <td>{{ class_obj.department.name }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="receipt-detail">
+                                    <h5>Receipt Information</h5>
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td><strong>Receipt No:</strong></td>
+                                            <td>{{ receipt_number }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Receipt Date:</strong></td>
+                                            <td>{{ receipt_date }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Payment Date:</strong></td>
+                                            <td>{{ payment.payment_date }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Payment Method:</strong></td>
+                                            <td class="text-uppercase">{{ payment.payment_method }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Summary -->
+                        <div class="payment-summary mb-4">
+                            <h5>Payment Summary</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Description</th>
+                                            <th class="text-right">Amount (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <strong>Yearly Fee - {{ class_obj.name }}</strong><br>
+                                                <small class="text-muted">{{ payment.description }}</small>
+                                            </td>
+                                            <td class="text-right">₹{{ class_obj.yearly_fee }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Previous Payments</strong></td>
+                                            <td class="text-right">₹{{ previous_payments }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Current Payment</strong></td>
+                                            <td class="text-right text-success"><strong>₹{{ payment.paid_amount }}</strong></td>
+                                        </tr>
+                                        <tr class="table-secondary">
+                                            <td><strong>Balance Before Payment</strong></td>
+                                            <td class="text-right">₹{{ balance_before }}</td>
+                                        </tr>
+                                        <tr class="table-success">
+                                            <td><strong>Balance After Payment</strong></td>
+                                            <td class="text-right"><strong>₹{{ balance_after }}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Payment Status -->
+                        <div class="payment-status text-center mb-4">
+                            {% if balance_after == 0 %}
+                            <div class="alert alert-success">
+                                <h4 class="mb-0">✅ FULLY PAID</h4>
+                                <p class="mb-0">All fees have been cleared for this academic year.</p>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <h4 class="mb-0">⚠️ PARTIALLY PAID</h4>
+                                <p class="mb-0">Balance Amount: ₹{{ balance_after }} remaining</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="receipt-footer mt-5">
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <hr>
+                                    <p class="mb-0"><strong>Student Signature</strong></p>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <hr>
+                                    <p class="mb-0"><strong>Parent Signature</strong></p>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <hr>
+                                    <p class="mb-0"><strong>School Authority</strong></p>
+                                    <p class="text-muted small">PreSkool Administration</p>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <p class="text-muted small mb-0">
+                                    This is a computer generated receipt. No signature required.
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    Receipt ID: {{ receipt_number }} | Generated on: {% now "d/m/Y H:i" %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row mt-4 no-print">
+                        <div class="col-12 text-center">
+                            <button onclick="window.print()" class="btn btn-primary">
+                                <i class="fas fa-print"></i> Print Receipt
+                            </button>
+                            <a href="{% url 'student_fee_history' student.id %}" class="btn btn-info">
+                                <i class="fas fa-history"></i> View Payment History
+                            </a>
+                            <a href="{% url 'admin_class_student_fees' class_obj.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Class Fees
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .receipt-container {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    body {
+        background: white !important;
+        font-size: 12pt;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .table {
+        font-size: 10pt;
+    }
+
+    .alert {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    .text-primary, .text-success, .text-info {
+        color: black !important;
+    }
+}
+
+/* Receipt Styling */
+.receipt-container {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 30px;
+    background: white;
+}
+
+.receipt-header {
+    border-bottom: 3px double #dee2e6;
+    padding-bottom: 20px;
+}
+
+.receipt-detail {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #e9ecef;
+}
+
+.payment-summary table {
+    font-size: 14px;
+}
+
+.table-borderless td {
+    padding: 2px 5px;
+}
+
+.receipt-footer {
+    border-top: 3px double #dee2e6;
+    padding-top: 20px;
+}
+
+/* Status Colors */
+.alert-success {
+    background: #d4edda !important;
+    border-color: #c3e6cb !important;
+}
+
+.alert-info {
+    background: #d1ecf1 !important;
+    border-color: #bee5eb !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .receipt-container {
+        padding: 15px;
+    }
+
+    .receipt-detail {
+        margin-bottom: 15px;
+    }
+}
+</style>
+
+<script>
+// Auto-print option (optional)
+document.addEventListener('DOMContentLoaded', function() {
+    // Uncomment the line below if you want receipt to auto-print
+    // window.print();
+});
+
+// Print button functionality
+function printReceipt() {
+    window.print();
+}
+</script>
+{% endblock %}

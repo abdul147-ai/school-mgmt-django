@@ -1,0 +1,209 @@
+{% load static %}
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+      <title>Admin Registration</title>
+      <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
+      <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+      <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/fontawesome.min.css' %}">
+      <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/all.min.css' %}">
+      <link rel="stylesheet" href="{% static 'css/style.css' %}">
+   </head>
+   <body>
+      <div class="main-wrapper login-body">
+         <div class="login-wrapper">
+            <div class="container">
+               <div class="loginbox">
+                  <div class="login-left">
+                     <img class="img-fluid" src="{% static 'img/arhamlogo.png' %}" alt="Logo">
+                  </div>
+                  <div class="login-right">
+                     <div class="login-right-wrap">
+                        <h1>Admin Registration</h1>
+                        <p class="account-subtitle">Create your admin account</p>
+
+                        {% if messages %}
+                           {% for message in messages %}
+                              <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                                 {{ message }}
+                              </div>
+                           {% endfor %}
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'admin_signup' %}" enctype="multipart/form-data">
+                           {% csrf_token %}
+
+                           {% if form.non_field_errors %}
+                              <div class="alert alert-danger">
+                                 {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                 {% endfor %}
+                              </div>
+                           {% endif %}
+
+                           <div class="form-group">
+                              <label for="id_username">Username</label>
+                              <input class="form-control" type="text" name="username" id="id_username"
+                                     value="{{ form.username.value|default:'' }}"
+                                     placeholder="Enter username" required>
+                              {% if form.username.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.username.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_email">Email</label>
+                              <input class="form-control" type="email" name="email" id="id_email"
+                                     value="{{ form.email.value|default:'' }}"
+                                     placeholder="Enter email address" required>
+                              {% if form.email.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.email.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_first_name">First Name</label>
+                              <input class="form-control" type="text" name="first_name" id="id_first_name"
+                                     value="{{ form.first_name.value|default:'' }}"
+                                     placeholder="Enter first name" required>
+                              {% if form.first_name.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.first_name.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_last_name">Last Name</label>
+                              <input class="form-control" type="text" name="last_name" id="id_last_name"
+                                     value="{{ form.last_name.value|default:'' }}"
+                                     placeholder="Enter last name" required>
+                              {% if form.last_name.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.last_name.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_mobile">Mobile Number</label>
+                              <input class="form-control" type="text" name="mobile" id="id_mobile"
+                                     value="{{ form.mobile.value|default:'' }}"
+                                     placeholder="Enter mobile number" required>
+                              {% if form.mobile.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.mobile.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_address">Address</label>
+                              <textarea class="form-control" name="address" id="id_address"
+                                        placeholder="Enter your address" required rows="3">{{ form.address.value|default:'' }}</textarea>
+                              {% if form.address.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.address.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_profile">Profile Picture</label>
+                              <input class="form-control" type="file" name="profile" id="id_profile"
+                                     accept="image/*">
+                              {% if form.profile.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.profile.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                              <small class="form-text text-muted">
+                                 Optional: Upload a profile picture
+                              </small>
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_date_of_birth">Date of Birth</label>
+                              <input class="form-control" type="date" name="date_of_birth" id="id_date_of_birth"
+                                     value="{{ form.date_of_birth.value|default:'' }}">
+                              {% if form.date_of_birth.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.date_of_birth.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                              <small class="form-text text-muted">
+                                 Optional: Select your date of birth
+                              </small>
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_password1">Password</label>
+                              <input class="form-control" type="password" name="password1" id="id_password1"
+                                     placeholder="Enter password" required>
+                              {% if form.password1.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.password1.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                              <small class="form-text text-muted">
+                                 Your password must contain at least 8 characters.
+                              </small>
+                           </div>
+
+                           <div class="form-group">
+                              <label for="id_password2">Confirm Password</label>
+                              <input class="form-control" type="password" name="password2" id="id_password2"
+                                     placeholder="Confirm password" required>
+                              {% if form.password2.errors %}
+                                 <div class="text-danger small">
+                                    {% for error in form.password2.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                 </div>
+                              {% endif %}
+                           </div>
+
+                           <div class="form-group">
+                              <button class="btn btn-primary btn-block" type="submit">Register</button>
+                           </div>
+                        </form>
+
+                        <div class="text-center dont-have">
+                           Already have an account? <a href="/">Login here</a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+      <script src="{% static 'js/popper.min.js' %}"></script>
+      <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'js/script.js' %}"></script>
+   </body>
+</html>

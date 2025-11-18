@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <title>{% block title %}Student Dashboard{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static 'img/alogo.png' %}">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="main-wrapper">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <a href="{% url 'student_dashboard' %}" class="logo">
+                <img src="{% static 'img/arhamlogo.png' %}" alt="Logo">
+            </a>
+            <a href="{% url 'student_dashboard' %}" class="logo logo-small">
+                <img src="{% static 'img/alogo.png' %}" alt="Logo" width="30" height="30">
+            </a>
+        </div>
+        <a href="javascript:void(0);" id="toggle_btn">
+            <i class="fas fa-align-left"></i>
+        </a>
+        <a class="mobile_btn" id="mobile_btn">
+            <i class="fas fa-bars"></i>
+        </a>
+        <ul class="nav user-menu">
+            <li class="nav-item dropdown has-arrow">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                    <span class="user-img">
+                        {% if user.profile %}
+                            <img class="rounded-circle" src="{{ user.profile.url }}" width="31"
+                                 alt="{{ user.get_full_name }}">
+                        {% else %}
+                            <img class="rounded-circle" src="{% static 'img/user-default.png' %}" width="31"
+                                 alt="{{ user.get_full_name }}">
+                        {% endif %}
+                    </span>
+                </a>
+                <div class="dropdown-menu">
+                    <div class="user-header">
+                        <div class="avatar avatar-sm">
+                            {% if user.profile %}
+                            <img src="{{ user.profile.url }}" alt="User Image" class="avatar-img rounded-circle">
+                            {% else %}
+                            <img src="{% static 'img/user-default.png' %}" alt="User Image"
+                                 class="avatar-img rounded-circle">
+                            {% endif %}
+                        </div>
+                        <div class="user-text">
+                            <h6>{{ user.get_full_name }}</h6>
+                            <p class="text-muted mb-0">Student</p>
+                            <small>{{ student.student_id }}</small>
+                        </div>
+                    </div>
+                    <a class="dropdown-item" href="{% url 'student_dashboard' %}">My Dashboard</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-inner slimscroll">
+            <div id="sidebar-menu" class="sidebar-menu">
+                <ul>
+                    <li class="menu-title">
+                        <span>Student Menu</span>
+                    </li>
+
+                    <!-- Dashboard -->
+                    <li class="{% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                        <a href="{% url 'student_dashboard' %}">
+                            <i class="fas fa-home"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <!-- Attendance -->
+                    <li class="{% if request.resolver_match.url_name == 'student_attendance' %}active{% endif %}">
+                        <a href="{% url 'student_attendance' %}">
+                            <i class="fas fa-calendar-check"></i> <span>My Attendance</span>
+                        </a>
+                    </li>
+
+                    <!-- Timetable -->
+                    <li class="{% if request.resolver_match.url_name == 'student_timetable' %}active{% endif %}">
+                        <a href="{% url 'student_timetable' %}">
+                            <i class="fas fa-calendar-alt"></i> <span>Class Timetable</span>
+                        </a>
+                    </li>
+
+                    <!-- Fee Summary -->
+                    <li class="{% if request.resolver_match.url_name == 'student_fee_summary' %}active{% endif %}">
+                        <a href="{% url 'student_fee_summary' %}">
+                            <i class="fas fa-money-bill-wave"></i> <span>Fee Summary</span>
+                        </a>
+                    </li>
+
+                    <!-- Add to student_base.html sidebar -->
+                    <li class="{% if request.resolver_match.url_name == 'student_assignments' %}active{% endif %}">
+                        <a href="{% url 'student_assignments' %}">
+                            <i class="fas fa-tasks"></i> <span>Assignments</span>
+                        </a>
+                    </li>
+
+                    <li class="{% if request.resolver_match.url_name == 'student_syllabus' %}active{% endif %}">
+                        <a href="{% url 'student_syllabus' %}">
+                            <i class="fas fa-book"></i> <span>Syllabus</span>
+                        </a>
+                    </li>
+
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="content container-fluid">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">{% block page_title %}Student Dashboard{% endblock %}</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                            <li class="breadcrumb-item active">{% block breadcrumb_active %}Overview{% endblock %}</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto">
+                        <!-- Student Quick Info -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="row">
+                <div class="col-12">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Main Content Block -->
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'js/script.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

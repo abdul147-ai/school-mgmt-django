@@ -1,0 +1,269 @@
+{% extends 'teacher/base_teacher.html' %}
+{% load static %}
+{% block title %}Department Attendance - HOD{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Department Attendance - {{ department.name }}</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'teacher_department' %}">Department</a></li>
+                    <li class="breadcrumb-item active">Attendance Overview</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Filter Attendance</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row">
+                        <div class="col-md-4">
+                            <label for="date">Select Date</label>
+                            <input type="date" name="date" class="form-control" value="{{ selected_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="class">Select Class (Optional)</label>
+                            <select name="class" class="form-control">
+                                <option value="">All Classes</option>
+                                {% for class in department_classes %}
+                                <option value="{{ class.id }}" {% if selected_class == class.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ class.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Summary Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        Attendance Summary for {{ selected_date|date:"F d, Y" }}
+                        {% if selected_class %}
+                         - {{ department_classes.0.name }}
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if class_attendance_summary %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Class</th>
+                                    <th>Class Teacher</th>
+                                    <th>Total Students</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>On Leave</th>
+                                    <th>Half Day</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for summary in class_attendance_summary %}
+                                <tr>
+                                    <td>{{ selected_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        <strong>{{ summary.class_obj.name }}</strong>
+                                        {% if summary.is_my_class %}
+                                        <span class="badge badge-info ml-1">My Class</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ summary.class_teacher }}</td>
+                                    <td>{{ summary.students_count }}</td>
+                                    <td>
+                                        {{ summary.present_count }}
+                                    </td>
+                                    <td>
+                                        {{ summary.absent_count }}
+                                    </td>
+                                    <td>
+                                        {{ summary.on_leave_count }}
+                                    </td>
+                                    <td>
+                                        {{ summary.half_day_count }}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary"
+                                                data-toggle="modal"
+                                                data-target="#attendanceDetailsModal{{ forloop.counter }}">
+                                            <i class="fas fa-search"></i> View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Attendance Data Found</h5>
+                        <p class="text-muted">No attendance records found for the selected date and filters.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Details Modals - One for each class -->
+{% for summary in class_attendance_summary %}
+<div class="modal fade" id="attendanceDetailsModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="attendanceDetailsModalLabel{{ forloop.counter }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="attendanceDetailsModalLabel{{ forloop.counter }}">
+                    Attendance Details - {{ summary.class_obj.name }} - {{ selected_date|date:"Y-m-d" }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Class Teacher:</strong> {{ summary.class_teacher }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Total Students:</strong> {{ summary.students_count }}
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white text-center">
+                            <div class="card-body p-2">
+                                <h6 class="mb-0">{{ summary.present_count }}</h6>
+                                <small>Present</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white text-center">
+                            <div class="card-body p-2">
+                                <h6 class="mb-0">{{ summary.absent_count }}</h6>
+                                <small>Absent</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white text-center">
+                            <div class="card-body p-2">
+                                <h6 class="mb-0">{{ summary.on_leave_count }}</h6>
+                                <small>On Leave</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white text-center">
+                            <div class="card-body p-2">
+                                <h6 class="mb-0">{{ summary.half_day_count }}</h6>
+                                <small>Half Day</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Student List -->
+                <h6 class="mb-3">Student Details:</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Roll No</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in summary.detailed_attendance %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ detail.student.get_name }}</td>
+                                <td>{{ detail.student.student_id|default:detail.student.student_id }}</td>
+                                <td>
+                                    {% if detail.attendance %}
+                                        {% if detail.attendance.status == 'present' %}
+                                            <span class="badge badge-success"> Present</span>
+                                        {% elif detail.attendance.status == 'absent' %}
+                                            <span class="badge badge-danger">Absent</span>
+                                        {% elif detail.attendance.status == 'on_leave' %}
+                                            <span class="badge badge-info"> On Leave</span>
+                                        {% elif detail.attendance.status == 'half_day' %}
+                                            <span class="badge badge-warning">Half Day</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-secondary">⚪ Not Recorded</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<!-- Only include Bootstrap JS if not already included in base template -->
+<script>
+// Simple script to handle modal if needed
+$(document).ready(function() {
+    // Any simple JavaScript can go here if needed
+});
+</script>
+{% endblock %}
+
+<style>
+.badge-success { background-color: #28a745; }
+.badge-danger { background-color: #dc3545; }
+.badge-info { background-color: #17a2b8; }
+.badge-warning { background-color: #ffc107; color: #212529; }
+.badge-secondary { background-color: #6c757d; }
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+.card .card-body.p-2 {
+    padding: 0.5rem !important;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+</style>

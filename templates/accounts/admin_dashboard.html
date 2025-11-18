@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Account Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">Account Dashboard</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Accounts</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Stats -->
+    <div class="col-xl-3 col-sm-6 col-12">
+        <div class="card bg-one">
+            <div class="card-body">
+                <div class="db-widgets d-flex justify-content-between align-items-center">
+                    <div class="db-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="db-info">
+                        <h3>{{ total_pending_fees }}</h3>
+                        <h6>Pending Fees</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6 col-12">
+        <div class="card bg-two">
+            <div class="card-body">
+                <div class="db-widgets d-flex justify-content-between align-items-center">
+                    <div class="db-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="db-info">
+                        <h3>{{ total_pending_salaries }}</h3>
+                        <h6>Pending Salaries</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6 col-12">
+        <div class="card bg-three">
+            <div class="card-body">
+                <div class="db-widgets d-flex justify-content-between align-items-center">
+                    <div class="db-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="db-info">
+                        <h3>{{ total_pending_expenses }}</h3>
+                        <h6>Pending Expenses</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row">
+    <!-- Recent Transactions -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Recent Transactions</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>{{ transaction.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge
+                                        {% if transaction.transaction_type == 'student_fee' %}bg-primary
+                                        {% elif transaction.transaction_type == 'teacher_salary' %}bg-success
+                                        {% else %}bg-info{% endif %}">
+                                        {{ transaction.get_transaction_type_display }}
+                                    </span>
+                                </td>
+                                <td>{{ transaction.description|default:"N/A" }}</td>
+                                <td>₹{{ transaction.amount }}</td>
+                                <td>
+                                    <span class="badge
+                                        {% if transaction.payment_status == 'paid' %}bg-success
+                                        {% elif transaction.payment_status == 'pending' %}bg-warning
+                                        {% elif transaction.payment_status == 'partial' %}bg-info
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ transaction.get_payment_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No recent transactions found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

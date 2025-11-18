@@ -1,0 +1,184 @@
+{% extends 'student/student_base.html' %}
+{% load static %}
+
+{% block title %}Fee Summary{% endblock %}
+{% block page_title %}Fee Summary{% endblock %}
+{% block breadcrumb_active %}Payment Status{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Fee Payment Summary</h1>
+        <div>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Fee Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Fee Overview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-primary font-weight-bold h5">₹{{ yearly_fee }}</div>
+                                    <div class="text-xs text-uppercase text-primary font-weight-bold">Total Yearly Fee</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-success font-weight-bold h5">₹{{ total_paid }}</div>
+                                    <div class="text-xs text-uppercase text-success font-weight-bold">Total Paid</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-{% if fee_balance <= 0 %}success{% else %}warning{% endif %} shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-{% if fee_balance <= 0 %}success{% else %}warning{% endif %} font-weight-bold h5">₹{{ balance }}</div>
+                                    <div class="text-xs text-uppercase text-{% if fee_balance <= 0 %}success{% else %}warning{% endif %} font-weight-bold">Balance Amount</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-left-{{ status_class }} shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="text-{{ status_class }} font-weight-bold h5">{{ status_text }}</div>
+                                    <div class="text-xs text-uppercase text-{{ status_class }} font-weight-bold">Payment Status</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    {% if yearly_fee > 0 %}
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold">Payment Progress</h6>
+                        <div class="progress mb-2" style="height: 25px;">
+                            <div class="progress-bar bg-info" role="progressbar"
+                                 style="width: {% widthratio total_paid yearly_fee 100 %}%"
+                                 aria-valuenow="{{ total_paid }}" aria-valuemin="0" aria-valuemax="{{ yearly_fee }}">
+                                ₹{{ total_paid }} Paid
+                            </div>
+                            {% if balance > 0 %}
+                            <div class="progress-bar bg-warning" role="progressbar"
+                                 style="width: {% widthratio balance yearly_fee 100 %}%"
+                                 aria-valuenow="{{ balance }}" aria-valuemin="0" aria-valuemax="{{ yearly_fee }}">
+                                ₹{{ balance }} Pending
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">0%</small>
+                            <small class="text-muted">100%</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment History</h6>
+                    <span class="badge badge-primary">{{ fee_payments.count }} payments</span>
+                </div>
+                <div class="card-body">
+                    {% if fee_payments %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Payment Date</th>
+                                    <th>Amount</th>
+                                    <th>Payment Method</th>
+                                    <th>Receipt Number</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in fee_payments %}
+                                <tr>
+                                    <td>{{ payment.payment_date|default:"-" }}</td>
+                                    <td >₹{{ payment.paid_amount }}</td>
+                                    <td>
+                                        {% if payment.payment_method %}
+                                            {{ payment.get_payment_method_display }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.receipt_number %}
+                                            <span >{{ payment.receipt_number }}</span>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ payment.description|default:"Fee Payment" }}</td>
+                                    <td>
+                                        {% if payment.payment_status == 'paid' %}
+                                            <span class="badge badge-success">Paid</span>
+                                        {% elif payment.payment_status == 'partial' %}
+                                            <span class="badge badge-warning">Partial</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="font-weight-bold">
+                                <tr>
+                                    <td colspan="1" class="text-right">Total Paid:</td>
+                                    <td >₹{{ total_paid }}</td>
+                                    <td colspan="4"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Payment Records Found</h5>
+                        <p class="text-muted">Your fee payment records will appear here once payments are recorded.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Important Notes -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-left-info shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Important Information</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-info-circle text-info mr-2"></i>Yearly Fee: ₹{{ yearly_fee|default:"Not set" }}</li>
+                        <li><i class="fas fa-info-circle text-info mr-2"></i>All payments are recorded against your student account</li>
+                        <li><i class="fas fa-info-circle text-info mr-2"></i>Please contact accounts department for any discrepancies</li>
+                        <li><i class="fas fa-info-circle text-info mr-2"></i>Keep your payment receipts for future reference</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

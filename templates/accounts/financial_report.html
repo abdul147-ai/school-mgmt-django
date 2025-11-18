@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Financial Report{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Financial Report</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Financial Report</li>
+                </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+                <a href="{% url 'financial_report' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}"
+                   class="btn btn-outline-primary">
+                    <i class="fas fa-sync"></i> Refresh
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter Form -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Report Period</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <input type="date" name="start_date" value="{{ start_date|date:'Y-m-d' }}"
+                                       class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <input type="date" name="end_date" value="{{ end_date|date:'Y-m-d' }}"
+                                       class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-filter"></i> Apply Filter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Summary Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-icon bg-1">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </span>
+                    </div>
+                    <div class="dash-widget-info">
+                        <h3>₹{{ total_income }}</h3>
+                        <h6 class="text-white">Total Income</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-icon bg-2">
+                            <i class="fas fa-receipt"></i>
+                        </span>
+                    </div>
+                    <div class="dash-widget-info">
+                        <h3>₹{{ total_expenses }}</h3>
+                        <h6 class="text-white">Total Expenses</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 col-12">
+            <div class="card {% if net_balance >= 0 %}bg-info{% else %}bg-warning{% endif %} text-white">
+                <div class="card-body">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-icon bg-3">
+                            <i class="fas fa-chart-line"></i>
+                        </span>
+                    </div>
+                    <div class="dash-widget-info">
+                        <h3>₹{{ net_balance }}</h3>
+                        <h6 class="text-white">Net Balance</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Income vs Expenses Breakdown -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Income Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>Income Source</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Student Fees</td>
+                                <td class="text-right text-success">₹{{ fee_income }}</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td><strong>Total Income</strong></td>
+                                <td class="text-right"><strong>₹{{ total_income }}</strong></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Expense Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>Expense Type</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Teacher Salaries</td>
+                                <td class="text-right">₹{{ salary_expenses }}</td>
+                            </tr>
+                            <tr>
+                                <td>School Expenses</td>
+                                <td class="text-right ">₹{{ school_expenses }}</td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td><strong>Total Expenses</strong></td>
+                                <td class="text-right"><strong>₹{{ total_expenses }}</strong></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Recent Transactions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Transactions (Last 10)</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_transactions %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>{{ transaction.payment_date }}</td>
+                                <td>{{ transaction.get_transaction_type_display }}</td>
+                                <td>{{ transaction.title }}</td>
+                                <td>₹{{ transaction.amount }}</td>
+                                <td>
+                                        <span class="badge badge-{% if transaction.payment_status == 'paid' %}success{% else %}warning{% endif %}">
+                                            {{ transaction.get_payment_status_display }}
+                                        </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                        <h5>No Transactions</h5>
+                        <p class="text-muted">No transactions recorded for this period.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

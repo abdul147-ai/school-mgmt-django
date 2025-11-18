@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <title>{% block title %}Teacher Dashboard{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static 'img/alogo.png' %}">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="main-wrapper">
+    <div class="header">
+        <div class="header-left">
+            <a href="{% url 'teacher_dashboard' %}" class="logo">
+                <img src="{% static 'img/arhamlogo.png' %}" alt="Logo">
+            </a>
+            <a href="{% url 'teacher_dashboard' %}" class="logo logo-small">
+                <img src="{% static 'img/alogo.png' %}" alt="Logo" width="30" height="30">
+            </a>
+        </div>
+        <a href="javascript:void(0);" id="toggle_btn">
+            <i class="fas fa-align-left"></i>
+        </a>
+        <a class="mobile_btn" id="mobile_btn">
+            <i class="fas fa-bars"></i>
+        </a>
+        <ul class="nav user-menu">
+            <li class="nav-item dropdown has-arrow">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                        <span class="user-img">
+                            <img class="rounded-circle" src="{{ user.profile.url }}" width="31"
+                                 alt="{{ user.get_full_name }}">
+                        </span>
+                </a>
+                <div class="dropdown-menu">
+                    <div class="user-header">
+                        <div class="avatar avatar-sm">
+                            <img src="{{ user.profile.url }}" alt="User Image" class="avatar-img rounded-circle">
+                        </div>
+                        <div class="user-text">
+                            <h6>{{ user.get_full_name }}</h6>
+                            <p class="text-muted mb-0">Teacher</p>
+                            {% if teacher.is_hod %}
+                            <small class="text-info">Head of Department</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a class="dropdown-item" href="#">My Profile</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-inner slimscroll">
+            <div id="sidebar-menu" class="sidebar-menu">
+                <ul>
+                    <li class="menu-title">
+                        <span>Main Menu</span>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+                        <a href="{% url 'teacher_dashboard' %}">
+                            <i class="fas fa-home"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="submenu {% if 'teacher_student' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="#">
+                            <i class="fas fa-user-graduate"></i> <span>Students</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul>
+                            <li><a href="{% url 'teacher_students' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_students' %}active{% endif %}">
+                                Student List
+                            </a></li>
+                            <li><a href="{% url 'teacher_add_student' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_add_student' %}active{% endif %}">
+                                Add Student
+                            </a></li>
+                        </ul>
+                    </li>
+
+                    <li class="submenu {% if 'attendance' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="#">
+                            <i class="fas fa-calendar-check"></i> <span>Attendance</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul>
+                            <li><a href="{% url 'teacher_mark_student_attendance' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_mark_student_attendance' %}active{% endif %}">
+                                Mark Attendance
+                            </a></li>
+                            <li><a href="{% url 'teacher_student_attendance_view' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_student_attendance_view' %}active{% endif %}">
+                                View Records
+                            </a></li>
+                        </ul>
+                    </li>
+                    <!-- In teacher base template navigation -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'teacher_timetable' %}">
+                            <i class="fas fa-calendar-alt"></i> My Timetable
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'teacher_student_fees' %}">
+                            <i class="fas fa-money-bill-wave"></i> Student Fees
+                        </a>
+                    </li>
+                    <!-- Add this to the sidebar menu after existing items -->
+                    <li class="submenu {% if 'assignment' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="#">
+                            <i class="fas fa-tasks"></i> <span>Assignments</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul>
+                            <li><a href="{% url 'teacher_assignments' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_assignments' %}active{% endif %}">
+                                My Assignments
+                            </a></li>
+                            <li><a href="{% url 'teacher_create_assignment' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_create_assignment' %}active{% endif %}">
+                                Create Assignment
+                            </a></li>
+                        </ul>
+                    </li>
+
+                    <li class="submenu {% if 'syllabus' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="#">
+                            <i class="fas fa-book"></i> <span>Syllabus</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul>
+                            <li><a href="{% url 'teacher_syllabus' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_syllabus' %}active{% endif %}">
+                                Manage Syllabus
+                            </a></li>
+                            <li><a href="{% url 'teacher_add_syllabus_topic' %}"
+                                   class="{% if request.resolver_match.url_name == 'teacher_add_syllabus_topic' %}active{% endif %}">
+                                Add Topic
+                            </a></li>
+                        </ul>
+                    </li>
+
+                    {% if teacher.is_hod %}
+                    <!-- Department Overview -->
+                    <li class="{% if request.resolver_match.url_name == 'teacher_department' %}active{% endif %}">
+                        <a href="{% url 'teacher_department' %}">
+                            <i class="fas fa-building"></i> <span>Department Overview</span>
+                        </a>
+                    </li>
+
+                    <!-- Department Attendance -->
+                    <li class="{% if request.resolver_match.url_name == 'hod_department_attendance' %}active{% endif %}">
+                        <a href="{% url 'hod_department_attendance' %}">
+                            <i class="fas fa-chart-bar"></i> <span>Department Attendance</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+    <!-- Messages Display -->
+    {% if messages %}
+    <div class="container-fluid mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            <strong>
+                {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i> Success!
+                {% elif message.tags == 'error' %}
+                <i class="fas fa-exclamation-circle"></i> Error!
+                {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i> Warning!
+                {% else %}
+                <i class="fas fa-info-circle"></i> Info
+                {% endif %}
+            </strong>
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+</div>
+
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'js/script.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

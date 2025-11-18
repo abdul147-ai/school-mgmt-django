@@ -1,0 +1,325 @@
+{% extends 'teacher/base_teacher.html' %}
+{% load static %}
+{% block title %}Student Details - {{ student.get_name }}{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+   <div class="page-header">
+      <div class="row">
+         <div class="col-sm-12">
+            <h3 class="page-title">Student Details</h3>
+            <ul class="breadcrumb">
+               <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+               <li class="breadcrumb-item"><a href="{% url 'teacher_students' %}">Students</a></li>
+               <li class="breadcrumb-item active">Student Details</li>
+            </ul>
+         </div>
+      </div>
+   </div>
+
+   <!-- Messages Display -->
+   {% if messages %}
+   <div class="row">
+      <div class="col-12">
+         {% for message in messages %}
+         <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         {% endfor %}
+      </div>
+   </div>
+   {% endif %}
+
+   <div class="card">
+      <div class="card-body">
+         <div class="row">
+            <div class="col-md-12">
+               <div class="about-info">
+                  <h4>About Student</h4>
+                  <div class="media mt-3">
+                     {% if student.user.profile and student.user.profile.url %}
+                        <img src="{{ student.user.profile.url }}" class="mr-3" alt="Student Image" width="150" height="150" style="object-fit: cover; border-radius: 8px;">
+                     {% else %}
+                        <img src="{% static 'img/profiles/avatar-01.jpg' %}" class="mr-3" alt="Student Image" width="150" height="150" style="object-fit: cover; border-radius: 8px;">
+                     {% endif %}
+                     <div class="media-body">
+                        <ul>
+                           <li>
+                              <span class="title-span">Full Name : </span>
+                              <span class="info-span">{{ student.get_name }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Student ID : </span>
+                              <span class="info-span">{{ student.student_id }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Department : </span>
+                              <span class="info-span">{{ student.department.name|default:"Not Assigned" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Class : </span>
+                              <span class="info-span">{{ student.Class|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Section : </span>
+                              <span class="info-span">{{ student.section|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Mobile : </span>
+                              <span class="info-span">{{ student.user.mobile|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Email : </span>
+                              <span class="info-span">{{ student.user.email|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Gender : </span>
+                              <span class="info-span">{{ student.gender|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Date of Birth : </span>
+                              <span class="info-span">{{ student.user.date_of_birth|date:"d M Y"|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Religion : </span>
+                              <span class="info-span">{{ student.religion|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Admission Number : </span>
+                              <span class="info-span">{{ student.admission_number|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Joining Date : </span>
+                              <span class="info-span">{{ student.joining_date|date:"d M Y"|default:"-" }}</span>
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="row mt-3">
+                     <div class="col-md-12">
+                        <div class="btn-group" role="group">
+                           <a href="{% url 'teacher_edit_student' student.id %}" class="btn btn-primary">
+                              <i class="fas fa-edit"></i> Edit Student
+                           </a>
+                           <a href="#" class="btn btn-danger ml-2" data-toggle="modal" data-target="#deleteStudentModal">
+                              <i class="fas fa-trash"></i> Delete Student
+                           </a>
+                           <a href="{% url 'teacher_students' %}" class="btn btn-secondary ml-2">
+                              <i class="fas fa-arrow-left"></i> Back to Students
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Delete Confirmation Modal -->
+                  <div class="modal fade" id="deleteStudentModal" tabindex="-1" role="dialog" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+                     <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                           <div class="modal-header">
+                              <h5 class="modal-title" id="deleteStudentModalLabel">Confirm Delete</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span>
+                              </button>
+                           </div>
+                           <div class="modal-body">
+                              <p>Are you sure you want to delete student <strong>{{ student.get_name }}</strong>? This action cannot be undone.</p>
+                              <p class="text-danger"><small>All associated data will be permanently removed.</small></p>
+                           </div>
+                           <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                              <form method="POST" action="{% url 'teacher_delete_student' student.id %}" style="display: inline;">
+                                 {% csrf_token %}
+                                 <button type="submit" class="btn btn-danger">Delete Student</button>
+                              </form>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="row mt-3">
+                     <div class="col-md-12">
+                        <p>
+                           {% if student.Class or student.department %}
+                              {{ student.get_name }} is currently enrolled in
+                              {% if student.Class %}Class {{ student.Class }}{% endif %}
+                              {% if student.section %} - Section {{ student.section }}{% endif %}
+                              {% if student.department %} in the {{ student.department.name }} department{% endif %}.
+                              {% if student.joining_date %}Joined on {{ student.joining_date|date:"F j, Y" }}.{% endif %}
+                           {% else %}
+                              No additional information available for {{ student.get_name }}.
+                           {% endif %}
+                        </p>
+                     </div>
+                  </div>
+
+
+
+                  <!-- Parent Information -->
+                  <div class="row mt-4">
+                     <div class="col-md-6">
+                        <h5>Father's Information</h5>
+                        <div class="info-card">
+                           <p><strong>Name:</strong> {{ student.father_name|default:"Not provided" }}</p>
+                           <p><strong>Occupation:</strong> {{ student.father_occupation|default:"-" }}</p>
+                           <p><strong>Mobile:</strong> {{ student.father_mobile|default:"-" }}</p>
+                           <p><strong>Email:</strong> {{ student.father_email|default:"-" }}</p>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <h5>Mother's Information</h5>
+                        <div class="info-card">
+                           <p><strong>Name:</strong> {{ student.mother_name|default:"Not provided" }}</p>
+                           <p><strong>Occupation:</strong> {{ student.mother_occupation|default:"-" }}</p>
+                           <p><strong>Mobile:</strong> {{ student.mother_mobile|default:"-" }}</p>
+                           <p><strong>Email:</strong> {{ student.mother_email|default:"-" }}</p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="row mt-4">
+                     <div class="col-md-6">
+                        <h5>Present Address</h5>
+                        <div class="info-card">
+                           <p>{{ student.present_address|default:"Not provided" }}</p>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <h5>Permanent Address</h5>
+                        <div class="info-card">
+                           <p>{{ student.permanent_address|default:"Not provided" }}</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- Department Information -->
+         {% if student.department %}
+         <div class="row mt-4">
+            <div class="col-md-12">
+               <div class="skill-info">
+                  <h4>Department Information</h4>
+                  <div class="row mt-3">
+                     <div class="col-md-6">
+                        <p><strong>Department Name:</strong> {{ student.department.name }}</p>
+                        <p><strong>Department ID:</strong> {{ student.department.department_id|default:"-" }}</p>
+                        <p><strong>Email:</strong> {{ student.department.email|default:"-" }}</p>
+                        <p><strong>Phone:</strong> {{ student.department.phone_number|default:"-" }}</p>
+                     </div>
+                     <div class="col-md-6">
+                        <p><strong>Office Location:</strong> {{ student.department.office_location|default:"-" }}</p>
+                        <p><strong>Start Date:</strong> {{ student.department.start_date|date:"d M Y"|default:"-" }}</p>
+                        <p><strong>Total Students:</strong> {{ student.department.student_set.count }}</p>
+                        <p><strong>Total Teachers:</strong> {{ student.department.teacher_set.count }}</p>
+                     </div>
+                  </div>
+                  {% if student.department.description %}
+                  <div class="row mt-3">
+                     <div class="col-md-12">
+                        <h6>Description</h6>
+                        <p>{{ student.department.description }}</p>
+                     </div>
+                  </div>
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+         {% endif %}
+
+         <!-- Additional Information -->
+         <div class="row mt-4">
+            <div class="col-md-12">
+               <div class="skill-info">
+                  <h4>Additional Information</h4>
+                  <div class="row mt-3">
+                     <div class="col-md-6">
+                        <h6>Account Information</h6>
+                        <p><strong>Username:</strong> {{ student.user.username }}</p>
+                        <p><strong>User Type:</strong> {{ student.user.get_user_type_display }}</p>
+                        <p><strong>Account Created:</strong> {{ student.user.date_joined|date:"d M Y" }}</p>
+                        <p><strong>Last Login:</strong>
+                           {% if student.user.last_login %}
+                              {{ student.user.last_login|date:"d M Y H:i" }}
+                           {% else %}
+                              Never
+                           {% endif %}
+                        </p>
+                     </div>
+                     <div class="col-md-6">
+                        <h6>Student Record</h6>
+                        <p><strong>Created At:</strong> {{ student.created_at|date:"d M Y H:i" }}</p>
+                        <p><strong>Last Updated:</strong> {{ student.updated_at|date:"d M Y H:i" }}</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+   $(document).ready(function() {
+      console.log('Student details page loaded for: {{ student.get_name }}');
+
+      // Initialize tooltips
+      $('[data-toggle="tooltip"]').tooltip();
+   });
+</script>
+
+ <style>
+   .title-span {
+      font-weight: 600;
+      color: #333;
+      min-width: 150px;
+      display: inline-block;
+   }
+
+   .info-span {
+      color: #666;
+   }
+
+   .blue-box {
+      background: #f8f9fa;
+      border-left: 4px solid #007bff;
+      padding: 20px;
+      border-radius: 4px;
+   }
+
+   .blue-box h3 {
+      margin: 0;
+      color: #007bff;
+      font-size: 24px;
+   }
+
+   .blue-box p {
+      margin: 5px 0 0 0;
+      color: #666;
+   }
+
+   .info-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      border: 1px solid #e9ecef;
+   }
+
+   .skill-info {
+      border-top: 1px solid #e9ecef;
+      padding-top: 20px;
+   }
+
+   .skill-info h4 {
+      color: #333;
+      margin-bottom: 15px;
+   }
+</style>
+{% endblock %}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Slip - {{ salary_record.teacher.get_name }}</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; padding: 20px; }
+            .container { max-width: 100% !important; }
+        }
+        .payment-slip {
+            border: 2px solid #000;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .details-table td {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+        }
+        .signature-area {
+            margin-top: 60px;
+            border-top: 1px solid #000;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-end mb-3 no-print">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+
+        <div class="payment-slip">
+            <!-- Header -->
+            <div class="header">
+                <h1 class="mb-2">PRESKOOL</h1>
+                <h3 class="mb-1">SALARY PAYMENT SLIP</h3>
+                <p class="mb-0">School Management System</p>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Teacher Information</h5>
+                    <table class="details-table w-100">
+                        <tr>
+                            <td><strong>Name:</strong></td>
+                            <td>{{ salary_record.teacher.get_name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Teacher ID:</strong></td>
+                            <td>{{ salary_record.teacher.teacher_id }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Department:</strong></td>
+                            <td>{{ salary_record.teacher.department.name|default:"N/A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Payment Information</h5>
+                    <table class="details-table w-100">
+                        <tr>
+                            <td><strong>Receipt No:</strong></td>
+                            <td>{{ salary_record.receipt_number|default:"Pending" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Payment Date:</strong></td>
+                            <td>{{ salary_record.payment_date|date:"F d, Y"|default:"Pending" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Month:</strong></td>
+                            <td>{{ salary_record.month }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Salary Breakdown -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5>Salary Details</h5>
+                    <table class="details-table w-100">
+                        <tr>
+                            <td><strong>Basic Salary:</strong></td>
+                            <td>₹{{ salary_record.amount }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Deductions:</strong></td>
+                            <td>₹0.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Allowances:</strong></td>
+                            <td>₹0.00</td>
+                        </tr>
+                        <tr class="table-primary">
+                            <td><strong>Net Salary Paid:</strong></td>
+                            <td><strong>₹{{ salary_record.paid_amount|default:salary_record.amount }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payment Status -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert {% if salary_record.payment_status == 'paid' %}alert-success{% else %}alert-warning{% endif %} text-center">
+                        <h4 class="mb-0">
+                            STATUS: {{ salary_record.get_payment_status_display|upper }}
+                        </h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            {% if salary_record.payment_method %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <table class="details-table w-100">
+                        <tr>
+                            <td><strong>Payment Method:</strong></td>
+                            <td>{{ salary_record.get_payment_method_display }}</td>
+                        </tr>
+                        {% if salary_record.description %}
+                        <tr>
+                            <td><strong>Notes:</strong></td>
+                            <td>{{ salary_record.description }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Signatures -->
+            <div class="row signature-area">
+                <div class="col-md-6 text-center">
+                    <p>_________________________</p>
+                    <p><strong>Teacher's Signature</strong></p>
+                </div>
+                <div class="col-md-6 text-center">
+                    <p>_________________________</p>
+                    <p><strong>Authorized Signature</strong></p>
+                    <p>Preskool Administration</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-4">
+                <p class="text-muted mb-0">
+                    This is a computer-generated document. No signature is required.
+                </p>
+                <p class="text-muted">
+                    Generated on: {{ current_date|date:"F d, Y" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-print when page loads
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

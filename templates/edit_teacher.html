@@ -1,146 +1,238 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
-{% block title %} Preskool - Admin Dashboard {% endblock %}
+{% block title %}Edit Teacher{% endblock %}
 
 {% block content %}
-
 <div class="content container-fluid">
-
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
-                <h3 class="page-title">Edit Teachers</h3>
+                <h3 class="page-title">Edit Teacher</h3>
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="teachers.html">Teachers</a></li>
-                    <li class="breadcrumb-item active">Edit Teachers</li>
+                    <li class="breadcrumb-item"><a href="{% url 'teachers' %}">Teachers</a></li>
+                    <li class="breadcrumb-item active">Edit Teacher</li>
                 </ul>
             </div>
         </div>
     </div>
 
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+                 role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <form>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if user_form.errors or teacher_form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Please correct the following errors:</strong>
+                            <ul>
+                                {% for field in user_form %}
+                                {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                                {% endfor %}
+                                {% for field in teacher_form %}
+                                {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                                {% endfor %}
+                                {% for error in user_form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                                {% for error in teacher_form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
                         <div class="row">
+                            <!-- Profile Picture -->
+                            <div class="col-12">
+                                <h5 class="form-title"><span>Profile Picture</span></h5>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ user_form.profile.label }}</label>
+                                    {{ user_form.profile }}
+                                    {% if user.profile %}
+                                    <div class="mt-2">
+                                        <small>Current:
+                                            <a href="{{ user.profile.url }}" target="_blank">{{ user.profile.name }}</a>
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Basic Details -->
                             <div class="col-12">
                                 <h5 class="form-title"><span>Basic Details</span></h5>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Teacher ID</label>
-                                    <input type="text" class="form-control" value="PRE1234">
+                                    <label>{{ teacher_form.teacher_id.label }} *</label>
+                                    {{ teacher_form.teacher_id }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Name</label>
-                                    <input type="text" class="form-control" value="Vincent">
+                                    <label>{{ teacher_form.department.label }} *</label>
+                                    {{ teacher_form.department }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Gender</label>
-                                    <select class="form-control">
-                                        <option>Male</option>
-                                        <option>Female</option>
-                                        <option>Others</option>
-                                    </select>
+                                    <label>{{ user_form.first_name.label }} *</label>
+                                    {{ user_form.first_name }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Date of Birth</label>
-                                    <input type="text" class="form-control" value="23 Jun 1985">
+                                    <label>{{ user_form.last_name.label }} *</label>
+                                    {{ user_form.last_name }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Mobile</label>
-                                    <input type="text" class="form-control" value="077 3499 9959">
+                                    <label>{{ teacher_form.gender.label }}</label>
+                                    {{ teacher_form.gender }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Joining Date</label>
-                                    <input type="text" class="form-control" value="16 Jul 2015">
+                                    <label>{{ user_form.date_of_birth.label }}</label>
+                                    {{ user_form.date_of_birth }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Qualification</label>
-                                    <input class="form-control" type="text" value="Bachelor of Engineering">
+                                    <label>{{ user_form.mobile.label }} *</label>
+                                    {{ user_form.mobile }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Experience</label>
-                                    <input class="form-control" type="text" value="5">
+                                    <label>{{ teacher_form.joining_date.label }}</label>
+                                    {{ teacher_form.joining_date }}
                                 </div>
                             </div>
+
+                            <!-- Subjects Field -->
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>{{ teacher_form.subjects.label }}</label>
+                                    {{ teacher_form.subjects }}
+                                    {% if teacher_form.subjects.help_text %}
+                                        <small class="form-text text-muted">{{ teacher_form.subjects.help_text }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ teacher_form.qualification.label }}</label>
+                                    {{ teacher_form.qualification }}
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ teacher_form.specialization.label }}</label>
+                                    {{ teacher_form.specialization }}
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ teacher_form.experience.label }}</label>
+                                    {{ teacher_form.experience }}
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ teacher_form.salary.label }}</label>
+                                    {{ teacher_form.salary }}
+                                </div>
+                            </div>
+
+                            <!-- Login Details -->
                             <div class="col-12">
                                 <h5 class="form-title"><span>Login Details</span></h5>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Username</label>
-                                    <input type="text" class="form-control" value="Vincent">
+                                    <label>{{ user_form.username.label }} *</label>
+                                    {{ user_form.username }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Email ID</label>
-                                    <input type="email" class="form-control" value="vincent20@gmail.com">
+                                    <label>{{ user_form.email.label }} *</label>
+                                    {{ user_form.email }}
                                 </div>
                             </div>
+
+                            <!-- Password Change Fields -->
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Password</label>
-                                    <input type="password" class="form-control" value="vincent">
+                                    <label>{{ user_form.password1.label }}</label>
+                                    {{ user_form.password1 }}
+                                    <small class="form-text text-muted">{{ user_form.password1.help_text }}</small>
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Repeat Password</label>
-                                    <input type="password" class="form-control" value="vincent">
+                                    <label>{{ user_form.password2.label }}</label>
+                                    {{ user_form.password2 }}
+                                    <small class="form-text text-muted">{{ user_form.password2.help_text }}</small>
                                 </div>
                             </div>
+
+                            <!-- Address -->
                             <div class="col-12">
                                 <h5 class="form-title"><span>Address</span></h5>
                             </div>
+
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label>Address</label>
-                                    <input type="text" class="form-control" value="3979 Ashwood Drive">
+                                    {{ user_form.address }}
                                 </div>
                             </div>
-                            <div class="col-12 col-sm-6">
-                                <div class="form-group">
-                                    <label>City</label>
-                                    <input type="text" class="form-control" value="Omaha">
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <div class="form-group">
-                                    <label>State</label>
-                                    <input type="text" class="form-control" value="Omaha">
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <div class="form-group">
-                                    <label>Zip Code</label>
-                                    <input type="text" class="form-control" value="3979">
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <div class="form-group">
-                                    <label>Country</label>
-                                    <input type="text" class="form-control" value="USA">
-                                </div>
-                            </div>
+
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary">Update Teacher</button>
+                                <a href="{% url 'teachers' %}" class="btn btn-secondary">Cancel</a>
+                                <a href="{% url 'teacher_details' teacher.id %}" class="btn btn-info">View Details</a>
                             </div>
                         </div>
                     </form>
@@ -150,4 +242,9 @@
     </div>
 </div>
 
+<style>
+#id_subjects {
+    min-height: 120px;
+}
+</style>
 {% endblock %}

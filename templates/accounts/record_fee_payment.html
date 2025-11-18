@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Record Fee Payment</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'admin_fee_class_list' %}">Fee Classes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'admin_class_student_fees' class_obj.id %}">{{ class_obj.name }}</a></li>
+                    <li class="breadcrumb-item active">Record Payment</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Payment for {{ student.user.get_full_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Student Fee Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Yearly Fee</h6>
+                                    <h4 class="text-primary">₹{{ yearly_fee }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Total Paid</h6>
+                                    <h4 class="text-success">₹{{ total_paid }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Balance</h6>
+                                    <h4 class="text-danger">₹{{ balance }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="id_amount">Payment Amount *</label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                            <div class="text-danger">{{ form.amount.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Maximum amount: ₹{{ balance }}</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_payment_date">Payment Date *</label>
+                            {{ form.payment_date }}
+                            {% if form.payment_date.errors %}
+                            <div class="text-danger">{{ form.payment_date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_payment_method">Payment Method *</label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                            <div class="text-danger">{{ form.payment_method.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_notes">Notes (Optional)</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="text-danger">{{ form.notes.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Record Payment
+                            </button>
+                            <a href="{% url 'admin_class_student_fees' class_obj.id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Set max amount to balance
+    const balance = {{ balance }};
+    $('#id_amount').attr('max', balance);
+
+    // Real-time amount validation
+    $('#id_amount').on('input', function() {
+        const amount = parseFloat($(this).val()) || 0;
+        if (amount > balance) {
+            $(this).addClass('is-invalid');
+            $('.form-text').addClass('text-danger');
+            $('.form-text').text(`Amount cannot exceed balance: ₹${balance}`);
+        } else {
+            $(this).removeClass('is-invalid');
+            $('.form-text').removeClass('text-danger');
+            $('.form-text').text(`Maximum amount: ₹${balance}`);
+        }
+    });
+});
+</script>
+{% endblock %}

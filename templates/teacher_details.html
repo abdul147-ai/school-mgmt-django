@@ -1,190 +1,269 @@
 {% extends 'base.html' %}
 {% load static %}
-{%block title%}Preskool - Admin Dashboard{%endblock%}
-{%block content%}
+{% block title %}Teacher Details{% endblock %}
+
+{% block content %}
 <div class="content container-fluid">
     <div class="page-header">
         <div class="row">
             <div class="col-sm-12">
-                <h3 class="page-title">Teachers Details</h3>
+                <h3 class="page-title">Teacher Details</h3>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'teachers' %}">Teachers</a></li>
-                    <li class="breadcrumb-item active">Teachers Details</li>
+                    <li class="breadcrumb-item active">Teacher Details</li>
                 </ul>
             </div>
         </div>
     </div>
+
+    <!-- Messages Display -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="card">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-12">
                     <div class="about-info">
-                        <h4>About Me</h4>
+                        <h4>About Teacher</h4>
                         <div class="media mt-3">
-                            <img src="{% static 'img/user.jpg' %}" class="mr-3" alt="...">
+                            <div class="mr-3">
+                                {% if teacher.user.profile %}
+                                    <img src="{{ teacher.user.profile.url }}" class="rounded" alt="{{ teacher.get_name }}" width="300" height="300">
+                                {% else %}
+                                    <img src="{% static 'img/profiles/avatar-02.jpg' %}" class="rounded" alt="{{ teacher.get_name }}" width="150" height="150">
+                                {% endif %}
+                            </div>
                             <div class="media-body">
-                                <ul>
+                                <ul class="personal-info">
                                     <li>
                                         <span class="title-span">Full Name : </span>
-                                        <span class="info-span">Daisy Parks</span>
+                                        <span class="info-span">{{ teacher.get_name }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Teacher ID : </span>
+                                        <span class="info-span">{{ teacher.teacher_id }}</span>
                                     </li>
                                     <li>
                                         <span class="title-span">Department : </span>
-                                        <span class="info-span">Computer Science</span>
+                                        <span class="info-span">{{ teacher.department.name|default:"Not Assigned" }}</span>
                                     </li>
                                     <li>
                                         <span class="title-span">Mobile : </span>
-                                        <span class="info-span">+91 89657 48512</span>
+                                        <span class="info-span">{{ teacher.user.mobile|default:"-" }}</span>
                                     </li>
                                     <li>
                                         <span class="title-span">Email : </span>
-                                        <span class="info-span"><a
-                                                href="https://preschool.dreamguystech.com/cdn-cgi/l/email-protection"
-                                                class="__cf_email__" data-cfemail="a3c7c2cad0dae3c4cec2cacf8dc0ccce">[email&#160;protected]</a></span>
+                                        <span class="info-span">{{ teacher.user.email|default:"-" }}</span>
                                     </li>
                                     <li>
                                         <span class="title-span">Gender : </span>
-                                        <span class="info-span">Male</span>
+                                        <span class="info-span">{{ teacher.gender|default:"-" }}</span>
                                     </li>
                                     <li>
-                                        <span class="title-span">DOB : </span>
-                                        <span class="info-span">22 Apr 1995</span>
+                                        <span class="title-span">Date of Birth : </span>
+                                        <span class="info-span">{{ teacher.user.date_of_birth|date:"d M Y"|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Qualification : </span>
+                                        <span class="info-span">{{ teacher.qualification|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Specialization : </span>
+                                        <span class="info-span">{{ teacher.specialization|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Experience : </span>
+                                        <span class="info-span">{{ teacher.experience|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Joining Date : </span>
+                                        <span class="info-span">{{ teacher.joining_date|date:"d M Y"|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Salary : </span>
+                                        <span class="info-span">
+                                            {% if teacher.salary %}
+                                                ₹{{ teacher.salary }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
+
+                        <!-- Action Buttons -->
                         <div class="row mt-3">
                             <div class="col-md-12">
-                                <p>Hello I am Daisy Parks. Lorem Ipsum is simply dummy text of the printing and
-                                    typesetting industry, simply dummy text of the printing and typesetting
-                                    industry.</p>
-                            </div>
-                        </div>
-                        <div class="row follow-sec">
-                            <div class="col-md-4 mb-3">
-                                <div class="blue-box">
-                                    <h3>2850</h3>
-                                    <p>Followers</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="blue-box">
-                                    <h3>2050</h3>
-                                    <p>Following</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="blue-box">
-                                    <h3>2950</h3>
-                                    <p>Friends</p>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-primary">
+                                        <i class="fas fa-edit"></i> Edit Teacher
+                                    </a>
+                                    <form method="POST" action="{% url 'delete_teacher' teacher.id %}" class="d-inline ml-2">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete {{ teacher.get_name }}? This action cannot be undone.');">
+                                            <i class="fas fa-trash"></i> Delete Teacher
+                                        </button>
+                                    </form>
+                                    <a href="{% url 'teachers' %}" class="btn btn-secondary ml-2">
+                                        <i class="fas fa-arrow-left"></i> Back to Teachers
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-2">
+
+                        <div class="row mt-4">
                             <div class="col-md-12">
-                                <h5>Permanent Address</h5>
-                                <p>480, Estern Avenue, Courtage area, New York</p>
+                                <h5>Bio</h5>
+                                <p>
+                                    {% if teacher.qualification or teacher.specialization %}
+                                        {{ teacher.get_name }} is
+                                        {% if teacher.qualification %}a {{ teacher.qualification }}{% endif %}
+                                        {% if teacher.specialization %}specializing in {{ teacher.specialization }}{% endif %}
+                                        {% if teacher.experience %}with {{ teacher.experience }} of experience{% endif %}.
+                                        {% if teacher.department %}Currently teaching in the {{ teacher.department.name }} department.{% endif %}
+                                    {% else %}
+                                        No additional information available for {{ teacher.get_name }}.
+                                    {% endif %}
+                                </p>
                             </div>
                         </div>
-                        <div class="row mt-2">
+
+
+                        <!-- Address Information -->
+                        <div class="row mt-4">
                             <div class="col-md-12">
-                                <h5>Present Address</h5>
-                                <p>480, Estern Avenue, Courtage area, New York</p>
+                                <h5>Address</h5>
+                                <p>{{ teacher.user.address|default:"No address provided." }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row mt-2">
+
+            <!-- Department Information -->
+            {% if teacher.department %}
+            <div class="row mt-4">
                 <div class="col-md-12">
                     <div class="skill-info">
-                        <h4>Skills</h4>
-                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry, simply dummy text
-                            of the printing and typesetting industry</p>
-                        <ul>
-                            <li>
-                                <label>Lorem Ipsum is simply</label>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                         role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"
-                                         style="width: 75%"></div>
-                                </div>
-                            </li>
-                            <li>
-                                <label>Lorem Ipsum is simply</label>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
-                                         role="progressbar" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100"
-                                         style="width: 69%"></div>
-                                </div>
-                            </li>
-                            <li>
-                                <label>Lorem Ipsum is simply</label>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
-                                         role="progressbar" aria-valuenow="86" aria-valuemin="0" aria-valuemax="100"
-                                         style="width: 86%"></div>
-                                </div>
-                            </li>
-                            <li>
-                                <label>Lorem Ipsum is simply</label>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
-                                         role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"
-                                         style="width: 65%"></div>
-                                </div>
-                            </li>
-                        </ul>
+                        <h4>Department Information</h4>
                         <div class="row mt-3">
-                            <div class="col-md-12">
-                                <h5>Education</h5>
-                                <p class="mt-3">Secondary Schooling at xyz school of secondary education, Mumbai.</p>
-                                <p>Higher Secondary Schooling at xyz school of higher secondary education, Mumbai.</p>
-                                <p>Bachelor of Science at Abc College of Art and Science, Chennai.</p>
-                                <p>Master of Science at Cdm College of Engineering and Technology, Pune.</p>
+                            <div class="col-md-6">
+                                <ul class="department-info">
+                                    <li>
+                                        <span class="title-span">Department Name : </span>
+                                        <span class="info-span">{{ teacher.department.name }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Department ID : </span>
+                                        <span class="info-span">{{ teacher.department.department_id }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Email : </span>
+                                        <span class="info-span">{{ teacher.department.email|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Phone : </span>
+                                        <span class="info-span">{{ teacher.department.phone_number|default:"-" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="department-info">
+                                    <li>
+                                        <span class="title-span">Office Location : </span>
+                                        <span class="info-span">{{ teacher.department.office_location|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Start Date : </span>
+                                        <span class="info-span">{{ teacher.department.start_date|date:"d M Y"|default:"-" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Number of Students : </span>
+                                        <span class="info-span">{{ teacher.department.number_of_students|default:"0" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Number of Teachers : </span>
+                                        <span class="info-span">{{ teacher.department.number_of_teachers|default:"0" }}</span>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
+                        {% if teacher.department.description %}
                         <div class="row mt-3">
                             <div class="col-md-12">
-                                <h5>Certificates</h5>
-                                <p class="mt-3">1st Prise in Running Competition.</p>
-                                <p>Lorem Ipsum is simply dummy text.</p>
-                                <p>Won overall star student in higher secondary education.</p>
-                                <p>Lorem Ipsum is simply dummy text.</p>
+                                <h6>Description</h6>
+                                <p>{{ teacher.department.description }}</p>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="row mt-2">
+            {% endif %}
+
+            <!-- Additional Information -->
+            <div class="row mt-4">
                 <div class="col-md-12">
                     <div class="skill-info">
-                        <h4>Settings</h4>
-                        <form>
-                            <div class="row mt-3">
-                                <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                        <label>Username</label>
-                                        <input type="text" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                        <label>Current Password</label>
-                                        <input type="password" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                        <label>New Password</label>
-                                        <input type="password" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </div>
+                        <h4>Additional Information</h4>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <h6>Account Information</h6>
+                                <ul class="additional-info">
+                                    <li>
+                                        <span class="title-span">Username : </span>
+                                        <span class="info-span">{{ teacher.user.username }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">User Type : </span>
+                                        <span class="info-span">{{ teacher.user.get_user_type_display }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Account Created : </span>
+                                        <span class="info-span">{{ teacher.user.date_joined|date:"d M Y" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Last Login : </span>
+                                        <span class="info-span">
+                                            {% if teacher.user.last_login %}
+                                                {{ teacher.user.last_login|date:"d M Y H:i" }}
+                                            {% else %}
+                                                Never
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                </ul>
                             </div>
-                        </form>
+                            <div class="col-md-6">
+                                <h6>Teacher Record</h6>
+                                <ul class="additional-info">
+                                    <li>
+                                        <span class="title-span">Created At : </span>
+                                        <span class="info-span">{{ teacher.created_at|date:"d M Y H:i" }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Last Updated : </span>
+                                        <span class="info-span">{{ teacher.updated_at|date:"d M Y H:i" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

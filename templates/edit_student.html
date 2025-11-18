@@ -1,179 +1,342 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Preskool - Edit Student{% endblock %}
+{% block title %}Edit Student{% endblock %}
 
 {% block content %}
 <div class="content container-fluid">
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
-                <h3 class="page-title">Edit Students</h3>
+                <h3 class="page-title">Edit Student</h3>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'students' %}">Students</a></li>
-                    <li class="breadcrumb-item active">Edit Students</li>
+                    <li class="breadcrumb-item active">Edit Student</li>
                 </ul>
             </div>
         </div>
     </div>
+
+    <!-- Messages Display -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
+
+                        <!-- Display form errors -->
+                        {% if user_form.errors or student_form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Please correct the following errors:</strong>
+                            <ul>
+                                {% for field in user_form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for field in student_form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in user_form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                                {% for error in student_form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
                         <div class="row">
+                            <!-- Profile Picture -->
+                            <div class="col-12">
+                                <h5 class="form-title"><span>Profile Picture</span></h5>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ user_form.profile.label }}</label>
+                                    {{ user_form.profile }}
+                                    {% if student.user.profile %}
+                                    <div class="mt-2">
+                                        <small>Current:
+                                            <a href="{{ student.user.profile.url }}" target="_blank">{{ student.user.profile.name }}</a>
+                                        </small>
+                                        <div class="mt-1">
+                                            <img src="{{ student.user.profile.url }}" alt="Current Profile" class="img-thumbnail" width="100">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Student Information -->
                             <div class="col-12">
                                 <h5 class="form-title"><span>Student Information</span></h5>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>First Name</label>
-                                    <input type="text" class="form-control" name="first_name" value="Nathan" required>
+                                    <label>{{ user_form.first_name.label }} *</label>
+                                    {{ user_form.first_name }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Last Name</label>
-                                    <input type="text" class="form-control" name="last_name" value="Humphries" required>
+                                    <label>{{ user_form.last_name.label }} *</label>
+                                    {{ user_form.last_name }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Student ID</label>
-                                    <input type="text" class="form-control" name="student_id" value="PRE1234" required>
+                                    <label>{{ student_form.student_id.label }} *</label>
+                                    {{ student_form.student_id }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Gender</label>
-                                    <select class="form-control" name="gender" required>
-                                        <option value="">Select Gender</option>
-                                        <option value="Male" selected>Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
+                                    <label>{{ student_form.gender.label }} *</label>
+                                    {{ student_form.gender }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Date of Birth</label>
-                                    <div>
-                                        <input type="date" class="form-control" name="date_of_birth" value="1994-04-26" required>
-                                    </div>
+                                    <label>{{ user_form.date_of_birth.label }}</label>
+                                    {{ user_form.date_of_birth }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Class</label>
-                                    <input type="text" class="form-control" name="class" value="10" required>
+                                    <label>{{ student_form.Class.label }} *</label>
+                                    {{ student_form.Class }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Religion</label>
-                                    <input type="text" class="form-control" name="religion" value="Christian">
+                                    <label>{{ student_form.religion.label }}</label>
+                                    {{ student_form.religion }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Joining Date</label>
-                                    <div>
-                                        <input type="date" class="form-control" name="joining_date" value="2002-01-04" required>
-                                    </div>
+                                    <label>{{ student_form.joining_date.label }}</label>
+                                    {{ student_form.joining_date }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Mobile Number</label>
-                                    <input type="tel" class="form-control" name="mobile" value="07734999959" required>
+                                    <label>{{ user_form.mobile.label }} *</label>
+                                    {{ user_form.mobile }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Admission Number</label>
-                                    <input type="text" class="form-control" name="admission_number" value="PRE1252" required>
+                                    <label>{{ student_form.admission_number.label }} *</label>
+                                    {{ student_form.admission_number }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Section</label>
-                                    <input type="text" class="form-control" name="section" value="B" required>
+                                    <label>{{ student_form.section.label }}</label>
+                                    {{ student_form.section }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Student Image</label>
-                                    <input type="file" class="form-control" name="student_image">
-                                    <small class="form-text text-muted">Current image: student_avatar.jpg</small>
+                                    <label>{{ student_form.department.label }} *</label>
+                                    {{ student_form.department }}
                                 </div>
                             </div>
+
+                            <!-- Parent Information -->
                             <div class="col-12">
                                 <h5 class="form-title"><span>Parent Information</span></h5>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Father's Name</label>
-                                    <input type="text" class="form-control" name="father_name" value="Stephen Marley" required>
+                                    <label>{{ student_form.father_name.label }} *</label>
+                                    {{ student_form.father_name }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Father's Occupation</label>
-                                    <input type="text" class="form-control" name="father_occupation" value="Technician">
+                                    <label>{{ student_form.father_occupation.label }}</label>
+                                    {{ student_form.father_occupation }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Father's Mobile</label>
-                                    <input type="tel" class="form-control" name="father_mobile" value="4022217523" required>
+                                    <label>{{ student_form.father_mobile.label }} *</label>
+                                    {{ student_form.father_mobile }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Father's Email</label>
-                                    <input type="email" class="form-control" name="father_email" value="stephenmarley@gmail.com">
+                                    <label>{{ student_form.father_email.label }}</label>
+                                    {{ student_form.father_email }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Mother's Name</label>
-                                    <input type="text" class="form-control" name="mother_name" value="Cleary Wong" required>
+                                    <label>{{ student_form.mother_name.label }} *</label>
+                                    {{ student_form.mother_name }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Mother's Occupation</label>
-                                    <input type="text" class="form-control" name="mother_occupation" value="Home Maker">
+                                    <label>{{ student_form.mother_occupation.label }}</label>
+                                    {{ student_form.mother_occupation }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Mother's Mobile</label>
-                                    <input type="tel" class="form-control" name="mother_mobile" value="02673184366" required>
+                                    <label>{{ student_form.mother_mobile.label }} *</label>
+                                    {{ student_form.mother_mobile }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Mother's Email</label>
-                                    <input type="email" class="form-control" name="mother_email" value="clearywong@gmail.com">
+                                    <label>{{ student_form.mother_email.label }}</label>
+                                    {{ student_form.mother_email }}
                                 </div>
                             </div>
+
+                            <!-- Login Details -->
+                            <div class="col-12">
+                                <h5 class="form-title"><span>Login Details</span></h5>
+                            </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Present Address</label>
-                                    <textarea class="form-control" name="present_address" rows="3">86 Lamphey Road, Thelnetham</textarea>
+                                    <label>{{ user_form.username.label }} *</label>
+                                    {{ user_form.username }}
                                 </div>
                             </div>
+
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Permanent Address</label>
-                                    <textarea class="form-control" name="permanent_address" rows="3">86 Lamphey Road, Thelnetham</textarea>
+                                    <label>{{ user_form.email.label }} *</label>
+                                    {{ user_form.email }}
                                 </div>
                             </div>
+
+                            <!-- Password Change Fields -->
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ user_form.password1.label }}</label>
+                                    {{ user_form.password1 }}
+                                    <small class="form-text text-muted">{{ user_form.password1.help_text }}</small>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ user_form.password2.label }}</label>
+                                    {{ user_form.password2 }}
+                                    <small class="form-text text-muted">{{ user_form.password2.help_text }}</small>
+                                </div>
+                            </div>
+
+                            <!-- Address Information -->
+                            <div class="col-12">
+                                <h5 class="form-title"><span>Address Information</span></h5>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>{{ user_form.address.label }}</label>
+                                    {{ user_form.address }}
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ student_form.present_address.label }}</label>
+                                    {{ student_form.present_address }}
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>{{ student_form.permanent_address.label }}</label>
+                                    {{ student_form.permanent_address }}
+                                </div>
+                            </div>
+
+                            <!-- Read-only Information -->
+                            <div class="col-12">
+                                <h5 class="form-title"><span>System Information</span></h5>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>Student ID</label>
+                                    <input type="text" class="form-control" value="{{ student.student_id }}" readonly>
+                                    <small class="form-text text-muted">Student ID cannot be changed</small>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>Created At</label>
+                                    <input type="text" class="form-control" value="{{ student.created_at|date:'M d, Y H:i' }}" readonly>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>Last Updated</label>
+                                    <input type="text" class="form-control" value="{{ student.updated_at|date:'M d, Y H:i' }}" readonly>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>User Type</label>
+                                    <input type="text" class="form-control" value="{{ student.user.get_user_type_display }}" readonly>
+                                </div>
+                            </div>
+
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">Update Student</button>
                                 <a href="{% url 'students' %}" class="btn btn-secondary">Cancel</a>
+                                <a href="{% url 'student_details' student.id %}" class="btn btn-info">View Details</a>
                             </div>
                         </div>
                     </form>
@@ -188,16 +351,14 @@
 <script>
     // Additional JavaScript for the edit student page
     $(document).ready(function() {
-        // Add any specific JavaScript for this page here
-        console.log('Edit student page loaded');
+        console.log('Edit student page loaded for: {{ student.get_name }}');
 
-        // Example: Form validation
+        // Form validation
         $('form').on('submit', function(e) {
-            // Add custom validation if needed
             let isValid = true;
 
             // Check required fields
-            $('input[required]').each(function() {
+            $('input[required], select[required]').each(function() {
                 if (!$(this).val()) {
                     isValid = false;
                     $(this).addClass('is-invalid');
@@ -209,6 +370,13 @@
             if (!isValid) {
                 e.preventDefault();
                 alert('Please fill in all required fields.');
+            }
+        });
+
+        // Remove error class when user starts typing
+        $('input, select').on('input change', function() {
+            if ($(this).val()) {
+                $(this).removeClass('is-invalid');
             }
         });
     });

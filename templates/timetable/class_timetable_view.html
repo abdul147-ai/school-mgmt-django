@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ class_obj.name }} Timetable{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            {{ class_obj.name }} Timetable
+            <small class="text-muted">{{ class_obj.department.name }}</small>
+        </h1>
+        <div>
+            <a href="{% url 'class_timetable_select' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Back to Classes
+            </a>
+            <button onclick="window.print()" class="btn btn-info btn-sm">
+                <i class="fas fa-print"></i> Print
+            </button>
+            {% if user.is_admin %}
+            <a href="{% url 'timetable_create' %}?class={{ class_obj.id }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Add Entry
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% for day in days %}
+    {% if timetable_by_day|get_item:day %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{{ day|title }}</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Period</th>
+                            <th>Time</th>
+                            <th>Subject</th>
+                            <th>Teacher</th>
+                            <th>Room</th>
+                            {% if user.is_admin %}
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in timetable_by_day|get_item:day %}
+                        <tr>
+                            <td><strong>Period {{ entry.period }}</strong></td>
+                            <td>{{ entry.get_time_slot }}</td>
+                            <td>{{ entry.subject.name }}</td>
+                            <td>{{ entry.teacher.get_name }}</td>
+                            <td>{{ entry.room_number|default:"-" }}</td>
+                            {% if user.is_admin %}
+                            <td>
+                                <a href="{% url 'timetable_edit' entry.id %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'timetable_delete' entry.id %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    {% if not timetable_by_day.values|join:"" %}
+    <div class="card shadow mb-4">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-calendar-times fa-3x text-gray-300 mb-3"></i>
+            <h4 class="text-gray-500">No Timetable Available</h4>
+            <p class="text-gray-500">This class doesn't have any timetable entries yet.</p>
+            {% if user.is_admin %}
+            <a href="{% url 'timetable_create' %}?class={{ class_obj.id }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create Timetable
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Custom template filter to get dictionary items
+function get_item(dictionary, key) {
+    return dictionary[key];
+}
+</script>
+{% endblock %}

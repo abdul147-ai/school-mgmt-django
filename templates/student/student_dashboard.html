@@ -1,0 +1,192 @@
+{% extends 'student/student_base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb_active %}Overview{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Welcome Card -->
+    <div class="col-12">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="card-title">Welcome, {{ student.get_name }}</h2>
+                        <p class="card-text">
+                            <strong>Class:</strong> {{ class_obj.name|default:"Not assigned" }} |
+                            <strong>Department:</strong> {{ department.name|default:"Not assigned" }} |
+                            <strong>Student ID:</strong> {{ student.student_id }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mt-4">
+    <!-- Attendance Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Attendance (This Month)
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ attendance_percentage }}%
+                        </div>
+                        <div class="text-xs text-muted">
+                            {{ present_count }}/{{ total_days }} days present
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fee Status Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-{% if fee_balance <= 0 %}success{% else %}warning{% endif %} shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-{% if fee_balance <= 0 %}success{% else %}warning{% endif %} text-uppercase mb-1">
+                            Fee Status
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            ₹{{ total_paid }}/₹{{ yearly_fee }}
+                        </div>
+                        <div class="text-xs text-muted">
+                            {% if fee_balance <= 0 %}Fully Paid{% else %}₹{{ fee_balance }} pending{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Info Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Class Information
+                        </div>
+                        <div class="h6 mb-0 font-weight-bold text-gray-800">
+                            {{ class_obj.name|default:"Not assigned" }}
+                        </div>
+                        <div class="text-xs text-muted">
+                            {{ department.name|default:"No department" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-school fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Classes Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Today's Classes
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ today_timetable|length }}
+                        </div>
+                        <div class="text-xs text-muted">
+                            Check timetable for details
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Timetable & Quick Actions -->
+<div class="row mt-4">
+    <!-- Today's Timetable -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="card-title">Today's Timetable</h5>
+            </div>
+            <div class="card-body">
+                {% if today_timetable %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Subject</th>
+                                    <th>Teacher</th>
+                                    <th>Room</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for class in today_timetable %}
+                                <tr>
+                                    <td>{{ class.period }}</td>
+                                    <td>{{ class.subject.name }}</td>
+                                    <td>{{ class.teacher.get_name }}</td>
+                                    <td>{{ class.room_number|default:"-" }}</td>
+                                    <td>{{ class.get_time_slot }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No classes scheduled for today or timetable not available.</p>
+                {% endif %}
+                <a href="{% url 'student_timetable' %}" class="btn btn-primary btn-sm">View Full Timetable</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="card-title">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{% url 'student_attendance' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-calendar-check mr-2"></i>View My Attendance
+                    </a>
+                    <a href="{% url 'student_timetable' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-clock mr-2"></i>Weekly Timetable
+                    </a>
+                    <a href="{% url 'student_fee_summary' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-rupee-sign mr-2"></i>Fee Payment Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

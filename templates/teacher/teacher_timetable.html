@@ -1,0 +1,174 @@
+{% extends 'teacher/base_teacher.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-0">{{ title }}</h4>
+        <p class="card-subtitle text-muted mb-0">Your weekly teaching schedule</p>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0 timetable-table">
+                <thead class="table-light">
+                    <tr>
+                        <th class="period-header">Time / Day</th>
+                        {% for day in days %}
+                            <th class="text-center">{{ day|title }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in timetable_data %}
+                    <tr>
+                        <td class="period-time-cell">
+                            <div class="period-time">
+                                <div class="period-number">Period {{ row.period_num }}</div>
+                                <div class="time-slot">{{ row.period_display|cut:"Period " }}</div>
+                            </div>
+                        </td>
+
+                        {% for day in days %}
+                            <td class="timetable-cell">
+                                {% with entry=row.days|get_item:day %}
+                                    {% if entry %}
+                                        <div class="class-info">
+                                            <div class="subject">{{ entry.subject.name }}</div>
+                                            <div class="class-name">{{ entry.class_obj.name }}</div>
+                                            <div class="room">
+                                                Room: {{ entry.room_number|default:"-" }}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="free-info">
+                                            <div class="free-text">Free</div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.timetable-table {
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.timetable-table th {
+    font-weight: 600;
+    padding: 12px 8px;
+    vertical-align: middle;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.timetable-table td {
+    padding: 8px;
+    vertical-align: middle;
+    height: 100px;
+    border: 1px solid #dee2e6;
+}
+
+.period-header {
+    background-color: #f8f9fa;
+    width: 140px;
+    font-weight: 600;
+}
+
+.period-time-cell {
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.period-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.period-number {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.time-slot {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.timetable-cell {
+    text-align: center;
+    background-color: #ffffff;
+    transition: background-color 0.2s ease;
+}
+
+.timetable-cell:hover {
+    background-color: #f8f9fa;
+}
+
+.class-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding: 4px;
+}
+
+.subject {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    line-height: 1.2;
+    color: #212529;
+}
+
+.class-name {
+    font-size: 0.8rem;
+    color: #495057;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.room {
+    font-size: 0.75rem;
+    color: #6c757d;
+    line-height: 1.2;
+}
+
+.free-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.free-text {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.table-light th {
+    background-color: #f8f9fa;
+}
+
+/* Ensure consistent column widths */
+.timetable-table th,
+.timetable-table td {
+    width: calc(100% / {{ days|length|add:1 }});
+}
+
+.timetable-table th:first-child,
+.timetable-table td:first-child {
+    width: 140px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if show_attendance_form %}
+        Mark Teacher Attendance - {{ date|date:"F d, Y" }}
+    {% else %}
+        Mark Teacher Attendance - Admin Dashboard
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">
+                {% if show_attendance_form %}
+                    Mark Teacher Attendance - {{ date|date:"F d, Y" }}
+                {% else %}
+                    Mark Teacher Attendance
+                {% endif %}
+            </h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_teacher_attendance_view' %}">Teacher Attendance</a></li>
+                <li class="breadcrumb-item active">
+                    {% if show_attendance_form %}
+                        Mark Attendance
+                    {% else %}
+                        Select Date
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="col-auto text-right">
+            {% if show_attendance_form %}
+                <h5 class="text-muted">{{ date|date:"F d, Y" }}</h5>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if not show_attendance_form %}
+        <!-- Date Selection Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Select Date</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_date">Date</label>
+                                {{ form.date }}
+                                <small class="form-text text-muted">Select the date for teacher attendance</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-users"></i> Load Teachers
+                        </button>
+                        <a href="{% url 'admin_teacher_attendance_view' %}" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> View Records
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Attendance Marking Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    Teacher Attendance for {{ date|date:"F d, Y" }}
+                    <span class="badge badge-primary">{{ teacher_data|length }} teachers</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="attendance_date" value="{{ date|date:'Y-m-d' }}">
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Mark attendance for all teachers below. Default status is "Present".
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Teacher ID</th>
+                                    <th>Teacher Name</th>
+                                    <th>Department</th>
+                                    <th width="150">Status</th>
+                                    <th width="150">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in teacher_data %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <strong>{{ data.teacher.teacher_id }}</strong>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if data.teacher.user.profile %}
+                                            <div class="avatar avatar-sm mr-3">
+                                                <img class="avatar-img rounded-circle"
+                                                     src="{{ data.teacher.user.profile.url }}"
+                                                     alt="{{ data.teacher.get_name }}"
+                                                     onerror="this.style.display='none'">
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ data.teacher.get_name }}</strong>
+                                                {% if data.existing_attendance %}
+                                                <br><small class="text-muted">Previously: {{ data.existing_attendance.get_status_display }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ data.teacher.department.name }}</td>
+                                    <td>
+                                        <select name="status_{{ data.teacher.id }}" class="form-control">
+                                            {% if data.existing_attendance %}
+                                                <option value="present" {% if data.existing_attendance.status == 'present' %}selected{% endif %}>Present</option>
+                                                <option value="absent" {% if data.existing_attendance.status == 'absent' %}selected{% endif %}>Absent</option>
+                                                <option value="on_leave" {% if data.existing_attendance.status == 'on_leave' %}selected{% endif %}>On Leave</option>
+                                                <option value="half_day" {% if data.existing_attendance.status == 'half_day' %}selected{% endif %}>Half Day</option>
+                                            {% else %}
+                                                <option value="present" selected>Present</option>
+                                                <option value="absent">Absent</option>
+                                                <option value="on_leave">On Leave</option>
+                                                <option value="half_day">Half Day</option>
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="remarks_{{ data.teacher.id }}"
+                                               class="form-control"
+                                               placeholder=" remarks"
+                                               value="{% if data.existing_attendance %}{{ data.existing_attendance.remarks }}{% endif %}">
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle"></i> No teachers found.
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if teacher_data %}
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <div class="quick-actions">
+                                    <strong>Quick Actions:</strong>
+                                    <button type="button" class="btn btn-sm btn-success mt-1" onclick="document.querySelectorAll('select').forEach(s => s.value = 'present')">
+                                        Mark All Present
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger mt-1" onclick="document.querySelectorAll('select').forEach(s => s.value = 'absent')">
+                                        Mark All Absent
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-right mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Attendance
+                        </button>
+                        <a href="{% url 'admin_teacher_attendance' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Date Selection
+                        </a>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

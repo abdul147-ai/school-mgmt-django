@@ -1,0 +1,158 @@
+{% extends 'teacher/base_teacher.html' %}
+{% load static %}
+{% block title %}My Department{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">My Department</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Department</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Department Overview -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Department Overview - {{ department.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-info  text-white mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h3>{{ department_students.count }}</h3>
+                                            <p>Total Students</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-user-graduate fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-success text-white mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h3>{{ department_teachers.count }}</h3>
+                                            <p>Total Teachers</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teachers in Department -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Teachers in Department</h5>
+                </div>
+                <div class="card-body">
+                    {% if department_teachers %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for teacher in department_teachers %}
+                                <tr>
+                                    <td>
+                                        <h2 class="table-avatar">
+                                            <a href="#" class="avatar avatar-sm mr-2">
+                                                <img class="avatar-img rounded-circle" src="{{ teacher.user.profile.url }}" alt="User Image">
+                                            </a>
+                                            <a href="#">{{ teacher.get_name }}</a>
+                                        </h2>
+                                    </td>
+                                    <td>{{ teacher.user.email }}</td>
+                                    <td>
+                                        {% if teacher.is_hod %}
+                                        <span class="badge badge-primary">HOD</span>
+                                        {% else %}
+                                        <span class="badge badge-success">Teacher</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Teachers Found</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Students in Department -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Students in Department</h5>
+                </div>
+                <div class="card-body">
+                    {% if department_students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in department_students %}
+                                <tr>
+                                    <td>{{ student.student_id }}</td>
+                                    <td>
+                                        <h2 class="table-avatar">
+
+                                            <a href="{% url 'teacher_student_details' student.id %}">{{ student.get_name }}</a>
+                                        </h2>
+                                    </td>
+                                    <td>{{ student.Class|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Students Found</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

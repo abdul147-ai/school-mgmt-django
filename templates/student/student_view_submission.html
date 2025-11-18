@@ -1,0 +1,86 @@
+{% extends 'student/student_base.html' %}
+{% load static %}
+
+{% block title %}View Submission{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">My Submission</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'student_assignments' %}">Assignments</a></li>
+                <li class="breadcrumb-item active">Submission</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">{{ assignment.title }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Submitted on:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}
+                    {% if submission.is_late %}
+                    <span class="badge badge-warning ml-2">Submitted Late</span>
+                    {% else %}
+                    <span class="badge badge-success ml-2">On Time</span>
+                    {% endif %}
+                </div>
+
+                {% if submission.notes %}
+                <div class="mb-4">
+                    <strong>Your Notes:</strong>
+                    <p class="mt-2">{{ submission.notes }}</p>
+                </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <strong>Submitted File:</strong>
+                    <div class="mt-2">
+                        <a href="{{ submission.submission_file.url }}" class="btn btn-outline-primary" download>
+                            <i class="fas fa-download"></i> Download Your Submission
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Assignment Info</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Subject:</strong> {{ assignment.subject.name }}</p>
+                <p><strong>Teacher:</strong> {{ assignment.teacher.get_name }}</p>
+                <p><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+                <p><strong>Status:</strong>
+                    {% if submission.is_late %}
+                    <span class="badge badge-warning">Late</span>
+                    {% else %}
+                    <span class="badge badge-success">On Time</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'student_assignments' %}" class="btn btn-light btn-block">
+                    <i class="fas fa-arrow-left"></i> Back to Assignments
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

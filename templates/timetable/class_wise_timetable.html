@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}  <!-- Load your custom filters -->
+
+{% block title %}{{ class_obj.name }} Timetable{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ class_obj.name }} - Weekly Timetable</h1>
+        <div>
+            <a href="{% url 'class_wise_timetable' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Classes
+            </a>
+            <a href="{% url 'bulk_timetable_create' class_obj.id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Timetable
+            </a>
+        </div>
+    </div>
+
+    <!-- Class Info -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-left-primary shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Class Information</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ class_obj.name }}</div>
+                            <div class="text-muted">
+                                Department: {{ class_obj.department.name }} |
+                                Class Teacher: {{ class_obj.class_teacher.get_name|default:"Not assigned" }} |
+                                Room: {{ class_obj.room_number|default:"Not assigned" }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-school fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Timetable -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Weekly Schedule</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th width="120px">Period</th>
+                            {% for day in days %}
+                            <th>{{ day|title }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for period_num, period_display in periods %}
+                        <tr>
+                            <td class="font-weight-bold bg-light">
+                                {{ period_display }}
+                            </td>
+                            {% for day in days %}
+                            <td>
+                                {% with day_data=timetable_data|get_item:day %}
+                                    {% with entry=day_data|get_item:period_num %}
+                                    {% if entry %}
+                                    <div class="timetable-entry">
+                                        <strong>{{ entry.subject.name }}</strong><br>
+                                        <small class="text-muted">{{ entry.teacher.get_name }}</small><br>
+                                        {% if entry.room_number %}
+                                        <span class="badge badge-info">{{ entry.room_number }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-times"></i><br>
+                                        <small>Free</small>
+                                    </div>
+                                    {% endif %}
+                                    {% endwith %}
+                                {% endwith %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timetable-entry {
+    padding: 8px;
+    border-left: 4px solid #4e73df;
+    background-color: #f8f9fc;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.table td {
+    vertical-align: middle !important;
+    min-height: 80px;
+}
+
+.badge {
+    font-size: 0.7em;
+}
+</style>
+{% endblock %}

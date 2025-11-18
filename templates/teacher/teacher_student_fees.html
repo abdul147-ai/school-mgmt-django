@@ -1,0 +1,129 @@
+{% extends 'teacher/base_teacher.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-0">{{ title }}</h4>
+        <p class="card-subtitle text-muted mb-0">Fee records for your class students</p>
+    </div>
+    <div class="card-body">
+
+        <!-- Quick Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-info">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-white">Total Students</h6>
+                        <h3 class="text-white">{{ total_students }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h6 class="card-title">Total Collected</h6>
+                        <h3>₹{{ total_collected }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h6 class="card-title">Total Pending</h6>
+                        <h3>₹{{ total_pending }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Details Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Student Fee Details</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Student ID</th>
+                                <th>Class</th>
+                                <th>Yearly Fee</th>
+                                <th>Paid Amount</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Last Payment</th>
+                                <th>Payments</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in student_fee_data %}
+                            <tr>
+                                <td>
+                                    <strong>{{ data.student.get_name }}</strong>
+                                </td>
+                                <td>{{ data.student.student_id }}</td>
+                                <td>
+                                    <span>{{ data.class_name }}</span>
+                                </td>
+                                <td>₹{{ data.yearly_fee }}</td>
+                                <td >
+                                    <strong>₹{{ data.total_paid }}</strong>
+                                </td>
+                                <td>
+                                    {% if data.balance > 0 %}
+                                        <strong>₹{{ data.balance }}</strong>
+                                    {% else %}
+                                       <strong>₹0</strong>
+                                    {% endif %}
+                                </td>
+                                <td>
+
+                                        {{ data.status|title }}
+                                </td>
+                                <td>
+                                    {% if data.last_payment_date %}
+                                        <small>{{ data.last_payment_date }}</small>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                  {{ data.payment_count }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-users fa-2x mb-2"></i>
+                                        <p>No students found in your classes.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+.table th {
+    font-weight: 600;
+    border-top: none;
+    background-color: #f8f9fa;
+}
+.badge {
+    font-size: 0.75rem;
+}
+</style>
+{% endblock %}

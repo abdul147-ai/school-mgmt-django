@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Class Details{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Class Details</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'class_list' %}">Classes</a></li>
+                    <li class="breadcrumb-item active">{{ class_obj.name }}</li>
+                </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+                {% if request.user.is_admin %}
+                <a href="{% url 'edit_class' class_obj.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Class
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Information Card -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Class Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="personal-info">
+                                <li>
+                                    <span class="title-span">Class Name : </span>
+                                    <span class="info-span">{{ class_obj.name }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Class ID : </span>
+                                    <span class="info-span">{{ class_obj.class_id }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Department : </span>
+                                    <span class="info-span">{{ class_obj.department.name }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Room Number : </span>
+                                    <span class="info-span">{{ class_obj.room_number|default:"Not assigned" }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="personal-info">
+                                <li>
+                                    <span class="title-span">Class Teacher : </span>
+                                    <span class="info-span">
+                                        {% if class_obj.class_teacher %}
+                                            {{ class_obj.class_teacher.get_name }}
+                                        {% else %}
+                                            <span class="text-muted">Not assigned</span>
+                                        {% endif %}
+                                    </span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Student Capacity : </span>
+                                    <span class="info-span">{{ class_obj.capacity }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Current Students : </span>
+                                    <span class="info-span">{{ students.count }}</span>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Teacher Information -->
+    {% if class_obj.class_teacher %}
+    <div class="row mt-4">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Class Teacher Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="media">
+                        <div class="mr-3">
+                            {% if class_obj.class_teacher.user.profile %}
+                                <img src="{{ class_obj.class_teacher.user.profile.url }}" class="rounded" alt="{{ class_obj.class_teacher.get_name }}" width="100" height="100">
+                            {% else %}
+                                <img src="{% static 'img/profiles/avatar-02.jpg' %}" class="rounded" alt="{{ class_obj.class_teacher.get_name }}" width="100" height="100">
+                            {% endif %}
+                        </div>
+                        <div class="media-body">
+                            <ul class="personal-info">
+                                <li>
+                                    <span class="title-span">Name : </span>
+                                    <span class="info-span">{{ class_obj.class_teacher.get_name }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Teacher ID : </span>
+                                    <span class="info-span">{{ class_obj.class_teacher.teacher_id }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Email : </span>
+                                    <span class="info-span">{{ class_obj.class_teacher.user.email }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Mobile : </span>
+                                    <span class="info-span">{{ class_obj.class_teacher.user.mobile }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Qualification : </span>
+                                    <span class="info-span">{{ class_obj.class_teacher.qualification|default:"Not specified" }}</span>
+                                </li>
+                                <li>
+                                    <span class="title-span">Subjects : </span>
+                                    <span class="info-span">
+                                        {% if class_obj.class_teacher.subjects.all %}
+                                            {% for subject in class_obj.class_teacher.subjects.all %}
+                                                <span class="badge badge-info">{{ subject.name }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">No subjects assigned</span>
+                                        {% endif %}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Students List -->
+    <div class="row mt-4">
+        <div class="col-sm-12">
+            <div class="card card-table">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        Students in Class
+                        <span class="badge badge-primary ml-2">{{ students.count }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>Admission Number</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>Joining Date</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ student.student_id }}</td>
+                                    <td>
+                                        <h2 class="table-avatar">
+                                            <a href="{% url 'student_details' student.id %}" class="avatar avatar-sm mr-2">
+                                                {% if student.user.profile %}
+                                                <img class="avatar-img rounded-circle" src="{{ student.user.profile.url }}" alt="User Image">
+                                                {% else %}
+                                                <img class="avatar-img rounded-circle" src="{% static 'img/profiles/avatar-02.jpg' %}" alt="User Image">
+                                                {% endif %}
+                                            </a>
+                                            <a href="{% url 'student_details' student.id %}">{{ student.get_name }}</a>
+                                        </h2>
+                                    </td>
+                                    <td>{{ student.gender|default:"-" }}</td>
+                                    <td>{{ student.admission_number|default:"-" }}</td>
+                                    <td>{{ student.user.email }}</td>
+                                    <td>{{ student.user.mobile }}</td>
+                                    <td>{{ student.joining_date|date:"d M Y"|default:"-" }}</td>
+                                    <td class="text-right">
+                                        <div class="actions">
+                                            <a href="{% url 'student_details' student.id %}" class="btn btn-sm bg-info-light mr-2">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if request.user.is_admin %}
+                                            <a href="{% url 'edit_student' student.id %}" class="btn btn-sm bg-success-light mr-2">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Students in This Class</h5>
+                        <p class="text-muted">No students have been assigned to this class yet.</p>
+                        {% if request.user.is_admin %}
+                        <a href="{% url 'add_student' %}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Add Student
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="btn-group" role="group">
+                <a href="{% url 'class_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Classes
+                </a>
+                {% if request.user.is_admin %}
+                <a href="{% url 'edit_class' class_obj.id %}" class="btn btn-primary ml-2">
+                    <i class="fas fa-edit"></i> Edit Class
+                </a>
+                {% endif %}
+                {% if class_obj.class_teacher %}
+                <a href="{% url 'teacher_details' class_obj.class_teacher.id %}" class="btn btn-info ml-2">
+                    <i class="fas fa-chalkboard-teacher"></i> View Teacher Profile
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.personal-info {
+    list-style: none;
+    padding: 0;
+}
+
+.personal-info li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.title-span {
+    font-weight: 600;
+    color: #333;
+    min-width: 160px;
+    display: inline-block;
+}
+
+.info-span {
+    color: #666;
+}
+
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.card-header h5 {
+    margin: 0;
+    color: #5a5c69;
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+}
+
+.table-avatar {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.avatar {
+    margin-right: 10px;
+}
+
+.media {
+    display: flex;
+    align-items: flex-start;
+}
+
+.media .mr-3 {
+    margin-right: 1rem !important;
+}
+
+.bg-primary, .bg-success, .bg-info, .bg-warning {
+    border: none;
+    border-radius: 8px;
+}
+
+.card.bg-primary .card-body,
+.card.bg-success .card-body,
+.card.bg-info .card-body,
+.card.bg-warning .card-body {
+    padding: 1.5rem;
+}
+
+.fa-2x {
+    font-size: 1.5em;
+}
+</style>
+{% endblock %}

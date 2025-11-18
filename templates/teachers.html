@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Preskool - Admin Dashboard{% endblock %}
+{% block title %}Teacher{% endblock %}
 
 {% block content %}
 <div class="content container-fluid">
@@ -10,7 +10,7 @@
             <div class="col">
                 <h3 class="page-title">Teachers</h3>
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'teachers' %}">Dashboard</a></li>
                     <li class="breadcrumb-item active">Teachers</li>
                 </ul>
             </div>
@@ -21,61 +21,109 @@
         </div>
     </div>
 
+    <!-- Messages Display -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+                 role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-sm-12">
             <div class="card card-table">
                 <div class="card-body">
+                    {% if teachers %}
                     <div class="table-responsive">
                         <table class="table table-hover table-center mb-0 datatable">
                             <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Teacher ID</th>
                                 <th>Name</th>
-                                <th>Class</th>
+                                <th>Department</th>
                                 <th>Gender</th>
-                                <th>Subject</th>
-                                <th>Section</th>
+                                <th>Qualification</th>
+                                <th>Subjects</th>
                                 <th>Mobile Number</th>
                                 <th>Address</th>
                                 <th class="text-right">Action</th>
                             </tr>
                             </thead>
                             <tbody>
+                            {% for teacher in teachers %}
                             <tr>
-                                <td>PRE2209</td>
+                                <td>{{ teacher.teacher_id }}</td>
                                 <td>
                                     <h2 class="table-avatar">
-                                        <a href="teacher-details.html" class="avatar avatar-sm mr-2"><img
-                                                class="avatar-img rounded-circle"
-                                                src="{% static 'img/profiles/avatar-02.jpg' %}" alt="User Image"></a>
-                                        <a href="{% url 'teacher_details' %}">Aaliyah</a>
+                                        <a href="{% url 'teacher_details' teacher.id %}" class="avatar avatar-sm mr-2">
+                                            {% if teacher.user.profile %}
+                                            <img class="avatar-img rounded-circle" src="{{ teacher.user.profile.url }}"
+                                                 alt="User Image">
+                                            {% else %}
+                                            <img class="avatar-img rounded-circle"
+                                                 src="{% static 'img/profiles/avatar-02.jpg' %}" alt="User Image">
+                                            {% endif %}
+                                        </a>
+                                        <a href="{% url 'teacher_details' teacher.id %}">{{ teacher.get_name }}</a>
                                     </h2>
                                 </td>
-                                <td>10</td>
-                                <td>Female</td>
-                                <td>Mathematics</td>
-                                <td>A</td>
-                                <td>097 3584 5870</td>
-                                <td>911 Deer Ridge Drive,USA</td>
+                                <td>{{ teacher.department.name|default:"Not Assigned" }}</td>
+                                <td>{{ teacher.gender|default:"-" }}</td>
+                                <td>{{ teacher.qualification|default:"-" }}</td>
+                                <td>
+                                    {% if teacher.subjects.all %}
+                                        {% for subject in teacher.subjects.all %}
+                                        <span>{{ subject.name }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">No subjects assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ teacher.user.mobile }}</td>
+                                <td>{{ teacher.user.address|truncatewords:3|default:"-" }}</td>
                                 <td class="text-right">
                                     <div class="actions">
-                                        <a href="{% url 'edit_teacher' 1 %}" class="btn btn-sm bg-success-light mr-2">
+                                        <a href="{% url 'edit_teacher' teacher.id %}"
+                                           class="btn btn-sm bg-success-light mr-2">
                                             <i class="fas fa-pen"></i>
                                         </a>
-                                        <a href="#" class="btn btn-sm bg-danger-light">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <form method="POST" action="{% url 'delete_teacher' teacher.id %}"
+                                              class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm bg-danger-light"
+                                                    onclick="return confirm('Are you sure you want to delete {{ teacher.get_name }}? This action cannot be undone.');">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
-
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Teachers Found</h5>
+                        <p class="text-muted">Get started by adding your first teacher.</p>
+                        <a href="{% url 'add_teacher' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Teacher
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

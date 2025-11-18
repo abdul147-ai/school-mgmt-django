@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Teacher Salaries{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">Teacher Salaries</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_account_dashboard' %}">Accounts</a></li>
+                <li class="breadcrumb-item active">Teacher Salaries</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages mb-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Filters -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="card-title">Salary Management - {{ selected_month }}</h5>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <form method="POST" action="{% url 'admin_generate_all_salaries' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Generate All Salaries
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Select Month</label>
+                        <select name="month" class="form-select" onchange="this.form.submit()">
+                            <option value="{{ current_month }}" {% if selected_month == current_month %}selected{% endif %}>
+                                Current Month ({{ current_month }})
+                            </option>
+                            {% for month in months %}
+                            <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>
+                                {{ month }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Payment Status</label>
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Paid</option>
+                            <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="not_generated" {% if selected_status == 'not_generated' %}selected{% endif %}>Not Generated</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <a href="?month={{ selected_month }}" class="btn btn-secondary">Clear Filters</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Salary Records Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Teacher Salary Records</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Teacher</th>
+                                <th>Department</th>
+                                <th>Salary Amount</th>
+                                <th>Status</th>
+                                <th>Payment Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for teacher_data in teachers_data %}
+                            <tr>
+                                <td>
+                                    <h6 class="mb-0">{{ teacher_data.teacher.get_name }}</h6>
+                                    <small class="text-muted">ID: {{ teacher_data.teacher.teacher_id }}</small>
+                                </td>
+                                <td>{{ teacher_data.teacher.department.name|default:"N/A" }}</td>
+                                <td>₹{{ teacher_data.base_salary|default:"0.00" }}</td>
+                                <td>
+                                    {% if teacher_data.salary_record %}
+                                        <span class="badge {% if teacher_data.payment_status == 'paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                            {{ teacher_data.payment_status|title }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Generated</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if teacher_data.salary_record and teacher_data.salary_record.payment_date %}
+                                        {{ teacher_data.salary_record.payment_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        {% if teacher_data.salary_record %}
+                                            <!-- Quick Action Buttons -->
+                                            {% if teacher_data.payment_status == 'pending' %}
+                                                <form method="POST" action="{% url 'admin_mark_salary_paid' teacher_data.salary_record.id %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success" title="Mark as Paid">
+                                                        <i class="fas fa-check"></i> Pay
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <form method="POST" action="{% url 'admin_mark_salary_pending' teacher_data.salary_record.id %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-warning" title="Mark as Pending">
+                                                        <i class="fas fa-clock"></i> Unpay
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+
+                                            <!-- Edit Payment Details -->
+                                            <a href="{% url 'admin_record_salary_payment' teacher_data.salary_record.id %}" class="btn btn-primary" title="Edit Payment">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+
+                                            <!-- Generate Payment Slip -->
+                                            <a href="{% url 'admin_generate_payment_slip' teacher_data.salary_record.id %}" class="btn btn-info" title="Payment Slip" target="_blank">
+                                                <i class="fas fa-receipt"></i>
+                                            </a>
+                                        {% else %}
+                                            {% if teacher_data.base_salary and teacher_data.base_salary > 0 %}
+                                                <span class="text-muted">Auto-generates</span>
+                                            {% else %}
+                                                <span class="text-danger">No Salary Set</span>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        <!-- View History -->
+                                        <a href="{% url 'admin_salary_history' teacher_data.teacher.id %}" class="btn btn-secondary" title="View History">
+                                            <i class="fas fa-history"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">
+                                    No teachers found for the selected criteria.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

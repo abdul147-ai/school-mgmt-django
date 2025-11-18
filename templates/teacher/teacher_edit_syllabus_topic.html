@@ -1,0 +1,75 @@
+{% extends 'teacher/base_teacher.html' %}
+{% load static %}
+
+{% block title %}Edit Syllabus Topic{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Edit Syllabus Topic</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'teacher_syllabus' %}">Syllabus</a></li>
+                <li class="breadcrumb-item active">Edit Topic</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label>Topic Title</label>
+                        {{ form.topic_title }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Target Date</label>
+                                {{ form.target_date }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Study Material</label>
+                                {{ form.study_material }}
+                                {% if syllabus_topic.study_material %}
+                                <small class="form-text text-muted">
+                                    Current: <a href="{{ syllabus_topic.study_material.url }}" target="_blank">{{ syllabus_topic.study_material.name }}</a>
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            {{ form.is_completed }}
+                            <label class="form-check-label" for="{{ form.is_completed.id_for_label }}">
+                                Mark as completed
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <a href="{% url 'teacher_syllabus' %}" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Topic</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

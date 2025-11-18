@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Preskool - Student Details{% endblock %}
+{% block title %}Student Details{% endblock %}
 
 {% block content %}
 <div class="content container-fluid">
@@ -10,141 +10,254 @@
          <div class="col-sm-12">
             <h3 class="page-title">Student Details</h3>
             <ul class="breadcrumb">
-               <li class="breadcrumb-item"><a href="{% url 'students' %}">Student</a></li>
+               <li class="breadcrumb-item"><a href="{% url 'students' %}">Students</a></li>
                <li class="breadcrumb-item active">Student Details</li>
             </ul>
          </div>
       </div>
    </div>
+
+   <!-- Messages Display -->
+   {% if messages %}
+   <div class="row">
+      <div class="col-12">
+         {% for message in messages %}
+         <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         {% endfor %}
+      </div>
+   </div>
+   {% endif %}
+
    <div class="card">
       <div class="card-body">
          <div class="row">
             <div class="col-md-12">
                <div class="about-info">
-                  <h4>About Me</h4>
+                  <h4>About Student</h4>
                   <div class="media mt-3">
-                     <img src="{% static 'img/profiles/avatar-01.jpg' %}" class="mr-3" alt="Student Image">
+                     {% if student.user.profile %}
+                        <img src="{{ student.user.profile.url }}" class="mr-3" alt="Student Image" width="150" height="150">
+                     {% else %}
+                        <img src="{% static 'img/profiles/avatar-01.jpg' %}" class="mr-3" alt="Student Image" width="150" height="150">
+                     {% endif %}
                      <div class="media-body">
                         <ul>
                            <li>
                               <span class="title-span">Full Name : </span>
-                              <span class="info-span">Daisy Parks</span>
+                              <span class="info-span">{{ student.get_name }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Student ID : </span>
+                              <span class="info-span">{{ student.student_id }}</span>
                            </li>
                            <li>
                               <span class="title-span">Department : </span>
-                              <span class="info-span">Computer Science</span>
+                              <span class="info-span">{{ student.department.name|default:"Not Assigned" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Class : </span>
+                              <span class="info-span">{{ student.Class|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Section : </span>
+                              <span class="info-span">{{ student.section|default:"-" }}</span>
                            </li>
                            <li>
                               <span class="title-span">Mobile : </span>
-                              <span class="info-span">+91 89657 48512</span>
+                              <span class="info-span">{{ student.user.mobile|default:"-" }}</span>
                            </li>
                            <li>
                               <span class="title-span">Email : </span>
-                              <span class="info-span">daisy@example.com</span>
+                              <span class="info-span">{{ student.user.email|default:"-" }}</span>
                            </li>
                            <li>
                               <span class="title-span">Gender : </span>
-                              <span class="info-span">Female</span>
+                              <span class="info-span">{{ student.gender|default:"-" }}</span>
                            </li>
                            <li>
-                              <span class="title-span">DOB : </span>
-                              <span class="info-span">22 Apr 1995</span>
+                              <span class="title-span">Date of Birth : </span>
+                              <span class="info-span">{{ student.user.date_of_birth|date:"d M Y"|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Religion : </span>
+                              <span class="info-span">{{ student.religion|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Admission Number : </span>
+                              <span class="info-span">{{ student.admission_number|default:"-" }}</span>
+                           </li>
+                           <li>
+                              <span class="title-span">Joining Date : </span>
+                              <span class="info-span">{{ student.joining_date|date:"d M Y"|default:"-" }}</span>
                            </li>
                         </ul>
                      </div>
                   </div>
+
+                  <!-- Action Buttons -->
                   <div class="row mt-3">
                      <div class="col-md-12">
-                        <p>Hello I am Daisy Parks. Lorem Ipsum is simply dummy text of the printing and typesetting industry, simply dummy text of the printing and typesetting industry.</p>
+                        <div class="btn-group" role="group">
+                           <a href="{% url 'edit_student' student.id %}" class="btn btn-primary">
+                              <i class="fas fa-edit"></i> Edit Student
+                           </a>
+                           <form method="POST" action="{% url 'delete_student' student.id %}" class="d-inline ml-2">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger"
+                                      onclick="return confirm('Are you sure you want to delete {{ student.get_name }}? This action cannot be undone.');">
+                                 <i class="fas fa-trash"></i> Delete Student
+                              </button>
+                           </form>
+                           <a href="{% url 'students' %}" class="btn btn-secondary ml-2">
+                              <i class="fas fa-arrow-left"></i> Back to Students
+                           </a>
+                        </div>
                      </div>
                   </div>
+
+                  <div class="row mt-3">
+                     <div class="col-md-12">
+                        <p>
+                           {% if student.Class or student.department %}
+                              {{ student.get_name }} is currently enrolled in
+                              {% if student.Class %}Class {{ student.Class }}{% endif %}
+                              {% if student.section %} - Section {{ student.section }}{% endif %}
+                              {% if student.department %} in the {{ student.department.name }} department{% endif %}.
+                              {% if student.joining_date %}Joined on {{ student.joining_date|date:"F j, Y" }}.{% endif %}
+                           {% else %}
+                              No additional information available for {{ student.get_name }}.
+                           {% endif %}
+                        </p>
+                     </div>
+                  </div>
+
                   <div class="row follow-sec">
                      <div class="col-md-4 mb-3">
                         <div class="blue-box">
-                           <h3>2850</h3>
-                           <p>Followers</p>
+                           <h3>{{ student.department.number_of_students|default:"0" }}</h3>
+                           <p>Students in Department</p>
                         </div>
                      </div>
                      <div class="col-md-4 mb-3">
                         <div class="blue-box">
-                           <h3>2050</h3>
-                           <p>Following</p>
+                           <h3>{{ student.department.number_of_teachers|default:"0" }}</h3>
+                           <p>Teachers in Department</p>
                         </div>
                      </div>
                      <div class="col-md-4 mb-3">
                         <div class="blue-box">
-                           <h3>2950</h3>
-                           <p>Friends</p>
+                           <h3>
+                              {% if student.joining_date %}
+                                 {{ student.joining_date|timesince }}
+                              {% else %}
+                                 N/A
+                              {% endif %}
+                           </h3>
+                           <p>With Institution</p>
                         </div>
                      </div>
                   </div>
+
+                  <!-- Parent Information -->
                   <div class="row mt-2">
-                     <div class="col-md-12">
-                        <h5>Permanent Address</h5>
-                        <p>480, Estern Avenue, Courtage area, New York</p>
+                     <div class="col-md-6">
+                        <h5>Father's Information</h5>
+                        <p><strong>Name:</strong> {{ student.father_name|default:"Not provided" }}</p>
+                        <p><strong>Occupation:</strong> {{ student.father_occupation|default:"-" }}</p>
+                        <p><strong>Mobile:</strong> {{ student.father_mobile|default:"-" }}</p>
+                        <p><strong>Email:</strong> {{ student.father_email|default:"-" }}</p>
+                     </div>
+                     <div class="col-md-6">
+                        <h5>Mother's Information</h5>
+                        <p><strong>Name:</strong> {{ student.mother_name|default:"Not provided" }}</p>
+                        <p><strong>Occupation:</strong> {{ student.mother_occupation|default:"-" }}</p>
+                        <p><strong>Mobile:</strong> {{ student.mother_mobile|default:"-" }}</p>
+                        <p><strong>Email:</strong> {{ student.mother_email|default:"-" }}</p>
                      </div>
                   </div>
+
                   <div class="row mt-2">
-                     <div class="col-md-12">
+                     <div class="col-md-6">
                         <h5>Present Address</h5>
-                        <p>480, Estern Avenue, Courtage area, New York</p>
+                        <p>{{ student.present_address|default:"Not provided" }}</p>
+                     </div>
+                     <div class="col-md-6">
+                        <h5>Permanent Address</h5>
+                        <p>{{ student.permanent_address|default:"Not provided" }}</p>
                      </div>
                   </div>
                </div>
             </div>
          </div>
+
+         <!-- Department Information -->
+         {% if student.department %}
          <div class="row mt-2">
             <div class="col-md-12">
                <div class="skill-info">
-                  <h4>Skills</h4>
-                  <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry, simply dummy text of the printing and typesetting industry</p>
-                  <ul>
-                     <li>
-                        <label>Lorem Ipsum is simply</label>
-                        <div class="progress">
-                           <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
-                        </div>
-                     </li>
-                     <li>
-                        <label>Lorem Ipsum is simply</label>
-                        <div class="progress">
-                           <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100" style="width: 69%"></div>
-                        </div>
-                     </li>
-                     <li>
-                        <label>Lorem Ipsum is simply</label>
-                        <div class="progress">
-                           <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="86" aria-valuemin="0" aria-valuemax="100" style="width: 86%"></div>
-                        </div>
-                     </li>
-                     <li>
-                        <label>Lorem Ipsum is simply</label>
-                        <div class="progress">
-                           <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="width: 65%"></div>
-                        </div>
-                     </li>
-                  </ul>
+                  <h4>Department Information</h4>
                   <div class="row mt-3">
-                     <div class="col-md-12">
-                        <h5>Education</h5>
-                        <p class="mt-3">Secondary Schooling at xyz school of secondary education, Mumbai.</p>
-                        <p>Higher Secondary Schooling at xyz school of higher secondary education, Mumbai.</p>
-                        <p>Bachelor of Science at Abc College of Art and Science, Chennai.</p>
-                        <p>Master of Science at Cdm College of Engineering and Technology, Pune.</p>
+                     <div class="col-md-6">
+                        <p><strong>Department Name:</strong> {{ student.department.name }}</p>
+                        <p><strong>Department ID:</strong> {{ student.department.department_id }}</p>
+                        <p><strong>Email:</strong> {{ student.department.email|default:"-" }}</p>
+                        <p><strong>Phone:</strong> {{ student.department.phone_number|default:"-" }}</p>
+                     </div>
+                     <div class="col-md-6">
+                        <p><strong>Office Location:</strong> {{ student.department.office_location|default:"-" }}</p>
+                        <p><strong>Start Date:</strong> {{ student.department.start_date|date:"d M Y"|default:"-" }}</p>
+                        <p><strong>Total Students:</strong> {{ student.department.number_of_students|default:"0" }}</p>
+                        <p><strong>Total Teachers:</strong> {{ student.department.number_of_teachers|default:"0" }}</p>
                      </div>
                   </div>
+                  {% if student.department.description %}
                   <div class="row mt-3">
                      <div class="col-md-12">
-                        <h5>Certificates</h5>
-                        <p class="mt-3">1st Prise in Running Competition.</p>
-                        <p>Lorem Ipsum is simply dummy text.</p>
-                        <p>Won overall star student in higher secondary education.</p>
-                        <p>Lorem Ipsum is simply dummy text.</p>
+                        <h6>Description</h6>
+                        <p>{{ student.department.description }}</p>
+                     </div>
+                  </div>
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+         {% endif %}
+
+         <!-- Additional Information -->
+         <div class="row mt-2">
+            <div class="col-md-12">
+               <div class="skill-info">
+                  <h4>Additional Information</h4>
+                  <div class="row mt-3">
+                     <div class="col-md-6">
+                        <h6>Account Information</h6>
+                        <p><strong>Username:</strong> {{ student.user.username }}</p>
+                        <p><strong>User Type:</strong> {{ student.user.get_user_type_display }}</p>
+                        <p><strong>Account Created:</strong> {{ student.user.date_joined|date:"d M Y" }}</p>
+                        <p><strong>Last Login:</strong>
+                           {% if student.user.last_login %}
+                              {{ student.user.last_login|date:"d M Y H:i" }}
+                           {% else %}
+                              Never
+                           {% endif %}
+                        </p>
+                     </div>
+                     <div class="col-md-6">
+                        <h6>Student Record</h6>
+                        <p><strong>Created At:</strong> {{ student.created_at|date:"d M Y H:i" }}</p>
+                        <p><strong>Last Updated:</strong> {{ student.updated_at|date:"d M Y H:i" }}</p>
                      </div>
                   </div>
                </div>
             </div>
          </div>
+
+         <!-- Settings Section (Optional - can be removed if not needed) -->
          <div class="row mt-2">
             <div class="col-md-12">
                <div class="skill-info">
@@ -154,23 +267,17 @@
                         <div class="col-12 col-sm-6">
                            <div class="form-group">
                               <label>Username</label>
-                              <input type="text" class="form-control">
+                              <input type="text" class="form-control" value="{{ student.user.username }}" readonly>
                            </div>
                         </div>
                         <div class="col-12 col-sm-6">
                            <div class="form-group">
-                              <label>Current Password</label>
-                              <input type="password" class="form-control">
-                           </div>
-                        </div>
-                        <div class="col-12 col-sm-6">
-                           <div class="form-group">
-                              <label>New Password</label>
-                              <input type="password" class="form-control">
+                              <label>Email</label>
+                              <input type="email" class="form-control" value="{{ student.user.email }}" readonly>
                            </div>
                         </div>
                         <div class="col-12">
-                           <button type="submit" class="btn btn-primary">Submit</button>
+                           <a href="{% url 'edit_student' student.id %}" class="btn btn-primary">Edit Student Information</a>
                         </div>
                      </div>
                   </form>
@@ -184,4 +291,9 @@
 
 {% block extra_js %}
 <!-- Add any additional JavaScript specific to this page here -->
+<script>
+   $(document).ready(function() {
+      console.log('Student details page loaded for: {{ student.get_name }}');
+   });
+</script>
 {% endblock %}

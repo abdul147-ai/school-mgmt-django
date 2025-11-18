@@ -1,0 +1,113 @@
+{% extends 'teacher/base_teacher.html' %}
+{% load static %}
+
+{% block title %}Manage Syllabus{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">Manage Syllabus</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Syllabus</li>
+            </ul>
+        </div>
+        <div class="col-auto text-right float-right ml-auto">
+            <a href="{% url 'teacher_add_syllabus_topic' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Topic
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        {% if syllabus_by_subject %}
+            {% for subject_name, topics in syllabus_by_subject.items %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">{{ subject_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Topic Title</th>
+                                    <th>Class</th>
+                                    <th>Target Date</th>
+                                    <th>Status</th>
+                                    <th>Materials</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for topic in topics %}
+                                <tr>
+                                    <td>
+                                        <h6 class="mb-0">{{ topic.topic_title }}</h6>
+                                        {% if topic.description %}
+                                        <small class="text-muted">{{ topic.description|truncatewords:10 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ topic.class_obj.name }}</td>
+                                    <td>{{ topic.target_date|default:"Not set" }}</td>
+                                    <td>
+                                        {% if topic.is_completed %}
+                                        <span class="badge badge-success">Completed</span>
+                                        {% else %}
+                                        <span class="badge badge-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if topic.study_material %}
+                                        <a href="{{ topic.study_material.url }}" class="btn btn-sm btn-outline-primary" download>
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        {% else %}
+                                        <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="actions">
+                                            <a href="{% url 'teacher_edit_syllabus_topic' topic.id %}"
+                                               class="btn btn-sm bg-success-light mr-2" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'teacher_mark_topic_complete' topic.id %}"
+                                               class="btn btn-sm {% if topic.is_completed %}bg-warning-light{% else %}bg-info-light{% endif %} mr-2"
+                                               title="{% if topic.is_completed %}Mark Incomplete{% else %}Mark Complete{% endif %}">
+                                                <i class="fas {% if topic.is_completed %}fa-times{% else %}fa-check{% endif %}"></i>
+                                            </a>
+                                            <a href="{% url 'teacher_delete_syllabus_topic' topic.id %}"
+                                               class="btn btn-sm bg-danger-light" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center py-4">
+                    <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Syllabus Topics</h5>
+                    <p class="text-muted">You haven't added any syllabus topics yet.</p>
+                    <a href="{% url 'teacher_add_syllabus_topic' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Your First Topic
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

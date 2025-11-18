@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Salary History - {{ teacher.get_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">Salary History</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_account_dashboard' %}">Accounts</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_teacher_salaries' %}">Teacher Salaries</a></li>
+                <li class="breadcrumb-item active">Salary History</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- Teacher Information -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Teacher Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+
+                        <h5>{{ teacher.get_name }}</h5>
+                        <p class="text-muted">{{ teacher.department.name|default:"No Department" }}</p>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <strong>Teacher ID:</strong>
+                                    <span>{{ teacher.teacher_id|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <strong>Base Salary:</strong>
+                                    <span>${{ teacher.salary|default:"0.00" }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <strong>Join Date:</strong>
+                                    <span>{{ teacher.joining_date|date:"M d, Y"|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ total_records }}</h4>
+                        <p>Total Records</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ paid_records }}</h4>
+                        <p>Paid Records</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ pending_records }}</h4>
+                        <p>Pending Records</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>₹{{ total_paid }}</h4>
+                        <p>Total Paid</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salary History Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="card-title">Salary Payment History</h5>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="{% url 'admin_teacher_salaries' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Back to Salaries
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Salary Amount</th>
+                                <th>Paid Amount</th>
+                                <th>Status</th>
+                                <th>Payment Date</th>
+                                <th>Payment Method</th>
+                                <th>Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for salary in salary_history %}
+                            <tr>
+                                <td>
+                                    <strong>{{ salary.month }}</strong>
+                                    {% if salary.description %}
+                                    <br><small class="text-muted">{{ salary.description }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>₹{{ salary.amount }}</td>
+                                <td>₹{{ salary.paid_amount|default:"0.00" }}</td>
+                                <td>
+                                    <span class="badge
+                                        {% if salary.payment_status == 'paid' %}bg-success
+                                        {% else %}bg-warning{% endif %}">
+                                        {{ salary.get_payment_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if salary.payment_date %}
+                                        {{ salary.payment_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if salary.payment_method %}
+                                        {{ salary.get_payment_method_display }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if salary.receipt_number %}
+                                        <span class="badge bg-info">{{ salary.receipt_number }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    No salary records found for this teacher.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

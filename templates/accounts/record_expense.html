@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Record Expense{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Record Expense</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'expense_list' %}">Expenses</a></li>
+                    <li class="breadcrumb-item active">Record Expense</li>
+                </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+                <a href="{% url 'expense_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> View All Expenses
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Record New Expense</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Please correct the following errors:</strong>
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{ form.title.label }} *</label>
+                                    {{ form.title }}
+                                    <small class="form-text text-muted">Enter a clear title for this expense</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{ form.amount.label }} *</label>
+                                    {{ form.amount }}
+                                    <small class="form-text text-muted">Enter the expense amount</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{ form.expense_category.label }} *</label>
+                                    {{ form.expense_category }}
+                                    <small class="form-text text-muted">Select the expense category</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{ form.payment_method.label }} *</label>
+                                    {{ form.payment_method }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{ form.payment_date.label }} *</label>
+                                    {{ form.payment_date }}
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>{{ form.description.label }}</label>
+                                    {{ form.description }}
+                                    <small class="form-text text-muted">Optional: Describe the expense in detail</small>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Record Expense
+                                </button>
+                                <a href="{% url 'expense_list' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Expense Categories</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <h6 class="mb-1 text-primary">Academic Expenses</h6>
+                            <small class="text-muted">Books, stationery, lab equipment, educational materials</small>
+                        </div>
+                        <div class="list-group-item">
+                            <h6 class="mb-1 text-success">Administrative</h6>
+                            <small class="text-muted">Office supplies, internet, phone bills, printing</small>
+                        </div>
+                        <div class="list-group-item">
+                            <h6 class="mb-1 text-info">Infrastructure & Maintenance</h6>
+                            <small class="text-muted">Repairs, furniture, building maintenance, cleaning</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <h4 class="text-success">Record Expense</h4>
+                        <p class="text-muted">Fill the form to record a new school expense. All fields marked with * are required.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

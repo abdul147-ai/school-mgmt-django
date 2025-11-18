@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+        <div>
+            <a href="{% url 'class_wise_timetable_detail' class_obj.id %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> View Timetable
+            </a>
+        </div>
+    </div>
+
+    <!-- Class Info -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-left-success shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {% if mode == 'edit' %}Editing{% else %}Creating{% endif %} Timetable For</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ class_obj.name }}</div>
+                            <div class="text-muted">
+                                Department: {{ class_obj.department.name }} |
+                                Available Subjects: {{ subjects.count }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-edit fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher-Subject Guide -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Teacher-Subject Guide</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for subject in subjects %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-left-info">
+                        <div class="card-body py-2">
+                            <h6 class="card-title text-primary">{{ subject.name }}</h6>
+                            <p class="card-text small mb-1">
+                                {% with teachers=teachers_by_subject|get_item:subject.id %}
+                                {% if teachers %}
+                                    {% for teacher in teachers %}
+                                    <span class="badge badge-success mr-1 mb-1">{{ teacher.get_name }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">No teachers assigned</span>
+                                {% endif %}
+                                {% endwith %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Timetable Form -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Weekly Timetable Grid</h6>
+            <button type="button" id="clearAll" class="btn btn-warning btn-sm">
+                <i class="fas fa-broom"></i> Clear All
+            </button>
+        </div>
+        <div class="card-body">
+            <form method="post" id="bulkTimetableForm">
+                {% csrf_token %}
+
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th width="120px">Period</th>
+                                {% for day in days %}
+                                <th>{{ day|title }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for period_num, period_display in periods %}
+                            <tr>
+                                <td class="font-weight-bold bg-light">
+                                    {{ period_display }}
+                                </td>
+                                {% for day in days %}
+                                <td>
+                                    {% with slot_key=day|add:"_"|add:period_num %}
+                                    {% with slot_data=existing_data|get_item:slot_key %}
+
+                                    <div class="form-group mb-2">
+                                        <select name="{{ day }}_{{ period_num }}_subject" class="form-control form-control-sm subject-select" data-day="{{ day }}" data-period="{{ period_num }}">
+                                            <option value="">Select Subject</option>
+                                            {% for subject in subjects %}
+                                            <option value="{{ subject.id }}"
+                                                {% if slot_data and slot_data.subject_id == subject.id %}selected{% endif %}>
+                                                {{ subject.name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group mb-2">
+                                        <select name="{{ day }}_{{ period_num }}_teacher" class="form-control form-control-sm teacher-select" data-day="{{ day }}" data-period="{{ period_num }}">
+                                            <option value="">Select Teacher</option>
+                                            {% if slot_data %}
+                                                {% with teachers=teachers_by_subject|get_item:slot_data.subject_id %}
+                                                    {% if teachers %}
+                                                        {% for teacher in teachers %}
+                                                        <option value="{{ teacher.id }}"
+                                                            {% if slot_data.teacher_id == teacher.id %}selected{% endif %}>
+                                                            {{ teacher.get_name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        </select>
+                                        <small class="form-text text-muted teacher-help" style="display: none;"></small>
+                                    </div>
+
+                                    <div class="form-group mb-0">
+                                        <input type="text" name="{{ day }}_{{ period_num }}_room"
+                                               class="form-control form-control-sm room-input"
+                                               placeholder="Room"
+                                               value="{% if slot_data %}{{ slot_data.room_number }}{% endif %}">
+                                    </div>
+
+                                    {% endwith %}
+                                    {% endwith %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> {% if mode == 'edit' %}Update{% else %}Create{% endif %} Weekly Timetable
+                    </button>
+                    <a href="{% url 'class_wise_timetable_detail' class_obj.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Teacher-subject mapping from server
+    const teachersBySubject = {
+        {% for subject in subjects %}
+        {{ subject.id }}: [
+            {% with teachers=teachers_by_subject|get_item:subject.id %}
+            {% for teacher in teachers %}
+            {id: {{ teacher.id }}, name: "{{ teacher.get_name }}"}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+            {% endwith %}
+        ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Clear all button functionality
+    document.getElementById('clearAll').addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all fields?')) {
+            const subjectSelects = document.querySelectorAll('.subject-select');
+            const teacherSelects = document.querySelectorAll('.teacher-select');
+            const roomInputs = document.querySelectorAll('.room-input');
+
+            subjectSelects.forEach(select => select.value = '');
+            teacherSelects.forEach(select => {
+                select.innerHTML = '<option value="">Select Teacher</option>';
+                select.disabled = true;
+            });
+            roomInputs.forEach(input => input.value = '');
+
+            // Hide all help text
+            document.querySelectorAll('.teacher-help').forEach(help => {
+                help.style.display = 'none';
+            });
+        }
+    });
+
+    // Subject change event - filter teachers
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('subject-select')) {
+            const subjectId = e.target.value;
+            const teacherSelect = e.target.closest('td').querySelector('.teacher-select');
+            const teacherHelp = e.target.closest('td').querySelector('.teacher-help');
+
+            // Clear previous selection
+            teacherSelect.innerHTML = '<option value="">Select Teacher</option>';
+            teacherHelp.style.display = 'none';
+
+            if (subjectId) {
+                // Enable and populate teacher dropdown
+                teacherSelect.disabled = false;
+                const teachers = teachersBySubject[subjectId] || [];
+
+                if (teachers.length > 0) {
+                    teachers.forEach(teacher => {
+                        const option = document.createElement('option');
+                        option.value = teacher.id;
+                        option.textContent = teacher.name;
+                        teacherSelect.appendChild(option);
+                    });
+                    teacherHelp.textContent = `${teachers.length} teacher(s) available`;
+                    teacherHelp.style.display = 'block';
+                    teacherHelp.className = 'form-text text-success teacher-help';
+                } else {
+                    teacherSelect.disabled = true;
+                    teacherHelp.textContent = 'No teachers available for this subject';
+                    teacherHelp.style.display = 'block';
+                    teacherHelp.className = 'form-text text-danger teacher-help';
+                }
+            } else {
+                teacherSelect.disabled = true;
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.form-control-sm {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.table td {
+    vertical-align: middle !important;
+    min-height: 120px;
+}
+
+.badge {
+    font-size: 0.7em;
+}
+</style>
+{% endblock %}
