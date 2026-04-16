@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Holiday Calendar{% endblock %}
+
+{% block extra_css %}
+<style>
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+.day {
+    border: 1px solid #ddd;
+    padding: 10px;
+    min-height: 100px;
+    cursor: pointer;
+}
+.day.sunday {
+    background: #f8f9fa;
+    color: #aaa;
+    cursor: not-allowed;
+}
+.day.today {
+    border: 2px solid #007bff;
+}
+.holiday {
+    background: #ffe0e0;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-top: 5px;
+}
+.header-row {
+    font-weight: bold;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content container-fluid">
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h4>Holiday Calendar</h4>
+        </div>
+        <div class="col-md-6 text-right">
+            <form method="get" class="form-inline justify-content-end">
+                <select name="month" class="form-control mr-2">
+                    {% for m in 1|to_int:12 %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>
+                            {{ m }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select name="year" class="form-control mr-2">
+                    {% for y in year|add:-2|to_int:year|add:2 %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>
+                            {{ y }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-primary">Go</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="calendar">
+        {% for d in "Mon Tue Wed Thu Fri Sat Sun".split %}
+            <div class="header-row">{{ d }}</div>
+        {% endfor %}
+
+        {% for week in month_days %}
+            {% for day in week %}
+                {% if day.weekday == 6 %}
+                    <div class="day sunday">
+                        {{ day.day }}<br>
+                        <small>Sunday</small>
+                    </div>
+                {% else %}
+                    <div class="day {% if day == today %}today{% endif %}"
+                         data-date="{{ day|date:'Y-m-d' }}"
+                         onclick="openHolidayModal(this)">
+                        {{ day.day }}
+
+                        {% if holiday_dict|get_item:day %}
+                            {% for h in holiday_dict|get_item:day %}
+                                <div class="holiday">{{ h.title }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal fade" id="holidayModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Holiday</h5>
+                <button class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openHolidayModal(el) {
+    const date = el.dataset.date;
+    fetch(`/holidays/modal/?date=${date}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('modalBody').innerHTML = data.html;
+            $('#holidayModal').modal('show');
+        });
+}
+</script>
+{% endblock %}

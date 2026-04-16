@@ -1,0 +1,74 @@
+<form id="holidayForm">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label>Holiday Title</label>
+        {{ form.title }}
+    </div>
+
+    <div class="form-group">
+        <label>Start Date</label>
+        {{ form.start_date }}
+    </div>
+
+    <div class="form-group">
+        <input type="checkbox" id="multiple_days" onclick="toggleEndDate()"
+               {% if form.end_date.value %}checked{% endif %}>
+        <label>Multiple Days</label>
+    </div>
+
+    <div class="form-group" id="end_date_row"
+         style="{% if not form.end_date.value %}display:none{% endif %}">
+        <label>End Date</label>
+        {{ form.end_date }}
+    </div>
+
+    <div class="form-group">
+        <label>Description</label>
+        {{ form.description }}
+    </div>
+
+    <div class="text-right">
+        {% if is_edit %}
+            <button type="button" class="btn btn-danger"
+                    onclick="deleteHoliday({{ holiday.id }})">
+                Delete
+            </button>
+        {% endif %}
+        <button type="submit" class="btn btn-success">
+            Save
+        </button>
+    </div>
+</form>
+
+<script>
+function toggleEndDate() {
+    const row = document.getElementById('end_date_row');
+    row.style.display = document.getElementById('multiple_days').checked
+        ? 'block' : 'none';
+}
+
+$('#holidayForm').on('submit', function(e){
+    e.preventDefault();
+
+    $.post(
+        "{% if is_edit %}/holidays/save/{{ holiday.id }}/{% else %}/holidays/save/{% endif %}",
+        $(this).serialize(),
+        function(res){
+            if(res.success){
+                location.reload();
+            }
+        }
+    );
+});
+
+function deleteHoliday(id){
+    if(confirm('Delete this holiday?')){
+        $.post(`/holidays/delete/${id}/`, {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }, function(){
+            location.reload();
+        });
+    }
+}
+</script>
